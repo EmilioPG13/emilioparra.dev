@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/*
+ * Dark mode is driven by data-theme on <html>, set by the inline script in
+ * Layout.astro before first paint. Tailwind's default `dark:` variant follows
+ * the OS setting only, so it is redefined to follow the attribute.
+ */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* Lets form controls and scrollbars match the active theme. */
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Neutral placeholder tokens. Phase 1 replaces them with the real palette. */
+:root {
+  --color-bg: #ffffff;
+  --color-fg: #111111;
+}
+
+html[data-theme="dark"] {
+  --color-bg: #111111;
+  --color-fg: #ececec;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
