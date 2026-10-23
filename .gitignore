@@ -27,3 +27,6 @@ graphify-out/
 # OS and editor
 .DS_Store
 Thumbs.db
+
+# Local photo originals (the optimized headshot.jpg is the one that ships)
+src/assets/Pro Headshot.png

@@ -1,0 +1,37 @@
+---
+import { person } from '../data/site';
+---
+
+<section id="contact" aria-labelledby="contact-title" class="on-sign bg-sign text-sign-ink">
+  <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+    <h2 id="contact-title" class="text-4xl font-extrabold sm:text-6xl">Contact</h2>
+    <p class="mt-3 max-w-[40ch] text-lg text-sign-muted">
+      The fastest way to know if I fit is the CV. To talk, write to me.
+    </p>
+
+    <div class="mt-8 flex flex-col items-start gap-6">
+      <a
+        href={person.cv}
+        download
+        class="inline-flex min-h-14 items-center gap-4 border-2 border-sign-ink bg-sign-ink px-5 text-lg font-bold text-sign no-underline hover:bg-sign hover:text-sign-ink"
+      >
+        <span>Download CV</span>
+        <span class="num text-sm font-semibold opacity-80">PDF</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true">
+          <path d="M12 4v12M6 11l6 6 6-6M5 21h14"></path>
+        </svg>
+      </a>
+
+      <a href={`mailto:${person.email}`} class="text-2xl font-bold sm:text-3xl">{person.email}</a>
+
+      <ul class="flex flex-wrap gap-x-8 gap-y-1 text-lg font-semibold">
+        <li>
+          <a href={person.linkedin} class="inline-flex min-h-11 items-center">LinkedIn</a>
+        </li>
+        <li>
+          <a href={person.github} class="inline-flex min-h-11 items-center">GitHub</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
