@@ -13,6 +13,11 @@ export const person = {
   github: 'https://github.com/EmilioPG13',
   linkedin: 'https://linkedin.com/in/emilio-parra-3813a5107',
   cv: '/emilio-parra-cv.pdf',
+  // Secondary action: lives only in Contact so the site never reads as freelance services.
+  calls: [
+    { label: 'Google Meet', href: 'https://calendly.com/emilio-pg95/intro-call' },
+    { label: 'Zoom', href: 'https://calendly.com/emilio-pg95/30min' },
+  ],
 } as const;
 
 export type LineColor = 'red' | 'blue' | 'amber' | 'brown';

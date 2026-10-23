@@ -114,3 +114,11 @@ test('the CV link serves a real PDF', async ({ page, request }) => {
   expect(response.headers()['content-type']).toContain('application/pdf');
   expect((await response.body()).subarray(0, 5).toString()).toBe('%PDF-');
 });
+
+test('the call links are secondary and live only in Contact', async ({ page }) => {
+  await page.goto('/');
+  const calls = page.locator('a[href^="https://calendly.com/"]');
+  await expect(calls).toHaveCount(2);
+  await expect(page.locator('#contact a[href^="https://calendly.com/"]')).toHaveCount(2);
+  await expect(page.locator('section[aria-labelledby="hero-name"] a[href^="https://calendly.com/"]')).toHaveCount(0);
+});

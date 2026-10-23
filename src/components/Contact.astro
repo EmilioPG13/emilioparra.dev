@@ -32,6 +32,17 @@ import { person } from '../data/site';
           <a href={person.github} class="inline-flex min-h-11 items-center">GitHub</a>
         </li>
       </ul>
+
+      <p class="flex flex-wrap items-center gap-x-4 text-sm text-sign-muted">
+        <span>Prefer a call? Book on</span>
+        {
+          person.calls.map((call) => (
+            <a href={call.href} class="inline-flex min-h-11 items-center font-semibold text-sign-ink">
+              {call.label}
+            </a>
+          ))
+        }
+      </p>
     </div>
   </div>
 </section>
