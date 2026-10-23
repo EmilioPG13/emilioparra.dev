@@ -4,11 +4,25 @@ import Hero from '../components/Hero.astro';
 import Projects from '../components/Projects.astro';
 import Background from '../components/Background.astro';
 import Contact from '../components/Contact.astro';
+import { person } from '../data/site';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  jobTitle: person.role,
+  url: Astro.site?.href,
+  email: `mailto:${person.email}`,
+  sameAs: [person.github, person.linkedin],
+  knowsAbout: ['Java', 'Python', 'TypeScript'],
+  address: { '@type': 'PostalAddress', addressLocality: 'Puebla', addressCountry: 'MX' },
+};
 ---
 
 <Layout
   title="Emilio Parra | Software Developer"
-  description="Emilio Parra, Software Developer working in Java, Python and TypeScript."
+  description="Emilio Parra, Software Developer in Puebla, Mexico, open to remote roles with US teams. Backend and full-stack in Java, Python and TypeScript."
+  jsonLd={jsonLd}
 >
   <Hero />
   <Projects />
