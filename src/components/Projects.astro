@@ -1,0 +1,217 @@
+---
+import { featured, shortLines } from '../data/site';
+import Arrow from './Arrow.astro';
+---
+
+<section id="projects" aria-labelledby="projects-title" class="pb-6 pt-10 sm:pt-16">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <h2 id="projects-title" class="text-4xl font-extrabold sm:text-5xl">Projects</h2>
+    <p class="mt-3 max-w-[55ch] text-lg text-ink-muted">
+      Two systems built to stay correct when things fail, and two shorter lines. Every stop links to the test or document behind it.
+    </p>
+  </div>
+
+  {
+    featured.map((project) => (
+      <article
+        id={project.id}
+        aria-labelledby={`${project.id}-title`}
+        class="mt-10 sm:mt-14"
+        style={`--line: var(--line-${project.color}); --on: var(--on-${project.color});`}
+      >
+        <div class="bg-[var(--line)] text-[var(--on)]">
+          <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 sm:px-6">
+            <span
+              class="grid size-11 shrink-0 place-items-center rounded-full bg-[var(--on)] text-xl font-extrabold text-[var(--line)]"
+              aria-hidden="true"
+            >
+              {project.letter}
+            </span>
+            <h3 id={`${project.id}-title`} class="text-2xl font-extrabold sm:text-3xl">
+              {project.name}
+            </h3>
+          </div>
+        </div>
+
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+          <p class="mt-6 max-w-[60ch] text-xl font-semibold leading-snug">{project.summary}</p>
+
+          <ol class:list={['stations mt-8', project.branch && 'branch']}>
+            {project.stations.map((station) => (
+              <li class:list={['station', station.branch && project.branch && 'has-branch']}>
+                {project.branch && station.branch && (
+                  <>
+                    <span class="jx jx-out" aria-hidden="true" />
+                    <span class="jx jx-side" aria-hidden="true" />
+                    <span class="jx jx-back" aria-hidden="true" />
+                  </>
+                )}
+                <h4 class="text-lg font-bold leading-snug">{station.title}</h4>
+                <p class="mt-1 text-ink-muted">{station.text}</p>
+                {station.proof && (
+                  <p class="mt-2">
+                    <a href={station.proof.href} class="font-semibold">
+                      {station.proof.label}
+                      <span class="sr-only"> for {station.title}</span>
+                    </a>
+                  </p>
+                )}
+              </li>
+            ))}
+          </ol>
+
+          <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-1">
+            {project.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="inline-flex min-h-11 items-center gap-1 text-lg font-bold text-ink"
+                >
+                  {link.label}
+                  <Arrow />
+                </a>
+              </li>
+            ))}
+          </ul>
+          {project.note && <p class="mt-1 max-w-[60ch] text-sm text-ink-muted">{project.note}</p>}
+        </div>
+      </article>
+    ))
+  }
+
+  <div class="mx-auto mt-14 max-w-6xl px-4 sm:mt-20 sm:px-6">
+    <h3 class="text-2xl font-extrabold">Shorter lines</h3>
+    <ul class="mt-4">
+      {
+        shortLines.map((project) => (
+          <li
+            id={project.id}
+            class="grid gap-3 border-t-[6px] border-[var(--line)] py-6 md:grid-cols-[14rem_1fr_auto] md:gap-8"
+            style={`--line: var(--line-${project.color}); --on: var(--on-${project.color});`}
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--line)] text-base font-extrabold text-[var(--on)]"
+                aria-hidden="true"
+              >
+                {project.letter}
+              </span>
+              <h4 class="text-xl font-extrabold">{project.name}</h4>
+            </div>
+            <div>
+              <p class="max-w-[60ch]">{project.summary}</p>
+              <p class="mt-1 text-sm text-ink-muted">{project.stack}</p>
+              {project.note && <p class="mt-1 text-sm text-ink-muted">{project.note}</p>}
+            </div>
+            <ul class="flex flex-wrap gap-x-6 md:flex-col md:gap-x-0">
+              {project.links.map((link) => (
+                <li>
+                  <a href={link.href} class="inline-flex min-h-11 items-center gap-1 font-bold text-ink">
+                    {link.label}
+                    <Arrow />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* A line on the map: a rail with one disc per stop. Vertical on a phone,
+     horizontal from the large breakpoint up. */
+  .stations {
+    position: relative;
+    display: grid;
+    gap: 2rem;
+    padding-left: 2.75rem;
+    list-style: none;
+  }
+  .stations::before {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--line);
+  }
+  .station {
+    position: relative;
+  }
+  .station::before {
+    content: '';
+    position: absolute;
+    left: -2.75rem;
+    top: 0.2rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    box-sizing: border-box;
+    border: 0.4rem solid var(--line);
+    border-radius: 50%;
+    background: var(--platform);
+  }
+
+  .jx {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    /* A siding: the retry stop leaves the line at 45 degrees and rejoins it. */
+    .stations.branch {
+      padding-top: 5rem;
+    }
+    .branch .station::before {
+      top: -5rem;
+    }
+    .branch .station.has-branch::before {
+      top: -2.5rem;
+    }
+    .jx {
+      display: block;
+      position: absolute;
+      height: 0.5rem;
+      border-radius: 0.25rem;
+      background: var(--line);
+    }
+    .jx-out {
+      width: 3.54rem;
+      left: -2.145rem;
+      top: -3.125rem;
+      transform: rotate(45deg);
+    }
+    .jx-side {
+      width: 6rem;
+      left: 0.875rem;
+      top: -1.875rem;
+    }
+    .jx-back {
+      width: 3.54rem;
+      left: 6.355rem;
+      top: -3.125rem;
+      transform: rotate(-45deg);
+    }
+    .stations {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem;
+      padding-left: 0;
+      padding-top: 3rem;
+    }
+    .stations::before {
+      left: 0.5rem;
+      right: 0.5rem;
+      top: 0.6rem;
+      bottom: auto;
+      width: auto;
+      height: 0.5rem;
+    }
+    .station::before {
+      left: 0;
+      top: -3rem;
+    }
+  }
+</style>

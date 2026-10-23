@@ -1,0 +1,42 @@
+---
+import { experience, education } from '../data/site';
+---
+
+<section id="experience" aria-labelledby="experience-title" class="mx-auto max-w-6xl px-4 pb-6 pt-16 sm:px-6 sm:pt-24">
+  <div class="grid gap-6 md:grid-cols-[14rem_1fr] md:gap-10">
+    <h2 id="experience-title" class="text-3xl font-extrabold sm:text-4xl">Experience</h2>
+    <ul class="border-t-[3px] border-ink">
+      {
+        experience.map((job) => (
+          <li class="grid gap-1 border-b border-rule py-5 sm:grid-cols-[1fr_auto] sm:gap-8">
+            <div>
+              <h3 class="text-xl font-bold">{job.title}</h3>
+              {job.where && <p class="text-ink-muted">{job.where}</p>}
+              {job.detail && <p class="mt-2 max-w-[60ch]">{job.detail}</p>}
+            </div>
+            <p class="num text-sm text-ink-muted sm:pt-1.5 sm:text-right">{job.when}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<section id="education" aria-labelledby="education-title" class="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16">
+  <div class="grid gap-6 md:grid-cols-[14rem_1fr] md:gap-10">
+    <h2 id="education-title" class="text-3xl font-extrabold sm:text-4xl">Education</h2>
+    <ul class="border-t-[3px] border-ink">
+      {
+        education.map((item) => (
+          <li class="grid gap-1 border-b border-rule py-4 sm:grid-cols-[1fr_auto] sm:gap-8">
+            <p>
+              <span class="font-bold">{item.title}</span>
+              <span class="text-ink-muted">, {item.where}</span>
+            </p>
+            <p class="num text-sm text-ink-muted sm:text-right">{item.when}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

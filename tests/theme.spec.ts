@@ -64,3 +64,46 @@ test('color-scheme matches the active theme', async ({ page }) => {
   const scheme = await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme);
   expect(scheme).toBe('dark');
 });
+
+test('the toggle is a button that announces its state and switches the theme', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  const toggle = page.getByRole('button', { name: 'Dark theme' });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the toggle choice survives a reload and beats the system setting', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Dark theme' }).click();
+  await page.reload();
+  expect(await theme(page)).toBe('dark');
+  await expect(page.getByRole('button', { name: 'Dark theme' })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the toggle works from the keyboard', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Dark theme' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
+
+test('the toggle still works when storage throws', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = () => {
+      throw new Error('blocked');
+    };
+    Storage.prototype.getItem = () => {
+      throw new Error('blocked');
+    };
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Dark theme' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});

@@ -1,0 +1,222 @@
+---
+// "The life of an event": one webhook event drawn as a journey on the Webhook
+// Delivery Platform line. The route and the receiver's answers (500, 500, 200)
+// come from the project README; the retry limit (10 attempts, about 47 hours,
+// then the dead-letter queue) from ADR 6. It is an illustration and says so.
+const stations = [
+  { name: 'API', y: 40 },
+  { name: 'Outbox', y: 100, sub: 'same DB transaction' },
+  { name: 'Dispatcher', y: 160 },
+  { name: 'SQS queue', y: 220 },
+  { name: 'Consumer', y: 280 },
+  { name: 'Sender', y: 340, sub: 'signed with HMAC' },
+];
+const receiverY = 500;
+const x = 170;
+---
+
+<figure class="m-0" data-event-map>
+  <svg
+    viewBox="-20 20 440 520"
+    class="mx-auto block h-auto w-full max-w-[26rem] lg:max-h-[30rem]"
+    role="img"
+    aria-labelledby="event-map-title event-map-desc"
+  >
+    <title id="event-map-title">The life of a webhook event</title>
+    <desc id="event-map-desc">
+      A line map. The event enters at the API, is saved in the outbox in the same database transaction, is
+      picked up by the dispatcher, goes through the SQS queue to the consumer and then to the sender, which
+      signs it and calls the receiver. In this example the receiver answers 500, then 500, then 200. After
+      each failure the event rides a retry loop back to the sender. After 10 attempts, about 47 hours, an
+      undelivered event would end in the dead-letter queue.
+    </desc>
+
+    <!-- The line itself: flat colour, 45 degree jogs. -->
+    <g fill="none" stroke="var(--line-blue)" stroke-linecap="round" stroke-linejoin="round">
+      <path d={`M${x} 40 V${receiverY}`} stroke-width="10"></path>
+      <path d={`M${x} 450 L210 410 V380 L${x} 340`} stroke-width="7"></path>
+      <path d="M210 410 L250 450" stroke-width="7"></path>
+    </g>
+
+    {
+      stations.map((s) => (
+        <g>
+          <circle cx={x} cy={s.y} r="11" fill="var(--platform)" stroke="var(--line-blue)" stroke-width="6"></circle>
+          <text x="146" y={s.y + (s.sub ? -2 : 6)} text-anchor="end" class="label">
+            {s.name}
+          </text>
+          {s.sub && (
+            <text x="146" y={s.y + 16} text-anchor="end" class="sublabel">
+              {s.sub}
+            </text>
+          )}
+        </g>
+      ))
+    }
+
+    <!-- Receiver: the interchange where it can go wrong. -->
+    <circle cx={x} cy={receiverY} r="15" fill="var(--platform)" stroke="var(--line-blue)" stroke-width="7"></circle>
+    <text x="146" y={receiverY - 2} text-anchor="end" class="label">Receiver</text>
+    <text x="146" y={receiverY + 17} text-anchor="end" class="sublabel mono">500, 500, 200</text>
+
+    <!-- Retry loop and dead-letter terminal. -->
+    <path d="M210 382 l-12 20 h24 z" fill="var(--line-blue)"></path>
+    <text x="230" y="405" class="sublabel">retry</text>
+    <circle cx="250" cy="450" r="10" fill="var(--ink)" stroke="var(--line-blue)" stroke-width="4"></circle>
+    <text x="268" y="444" class="label small">Dead-letter queue</text>
+    <text x="268" y="466" class="sublabel">after 10 attempts,</text>
+    <text x="268" y="485" class="sublabel">about 47 h</text>
+
+    <!-- Live parts, driven by the script below. Hidden until it runs. -->
+    <g data-bubble style="display: none">
+      <rect x="194" y="482" width="58" height="36" rx="3" fill="var(--sign)" stroke="var(--ink)" stroke-width="2"></rect>
+      <text data-bubble-text x="223" y="507" text-anchor="middle" class="bubble">200</text>
+    </g>
+    <circle data-token style="display: none" cx={x} cy="40" r="12" fill="var(--ink)" stroke="var(--platform)" stroke-width="3"></circle>
+  </svg>
+
+  <figcaption class="mt-3 text-sm text-ink-muted">
+    <p class="min-h-[6em] lg:min-h-[7.5em]" data-caption aria-hidden="true">
+      The receiver answers 500, 500, then 200: delivered on attempt 3. After 10 attempts (about 47 h) an undelivered event goes to the dead-letter queue. Simplified from the project README; illustration, not live data.
+    </p>
+    <button
+      type="button"
+      data-replay
+      hidden
+      class="mt-1 inline-flex min-h-11 cursor-pointer items-center gap-2 px-1 font-semibold text-ink underline"
+    >
+      Replay the event
+    </button>
+  </figcaption>
+</figure>
+
+<style>
+  .label {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 18px;
+    fill: var(--ink);
+  }
+  .label.small {
+    font-size: 16px;
+  }
+  .sublabel {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    fill: var(--ink-muted);
+  }
+  .sublabel.mono,
+  .bubble {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .bubble {
+    font-weight: 700;
+    font-size: 19px;
+    fill: var(--sign-ink);
+  }
+</style>
+
+<script>
+  type Point = [number, number];
+  interface Step {
+    to: Point;
+    reply?: string;
+    say?: string;
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-event-map]');
+  if (root) setup(root);
+
+  function setup(root: HTMLElement) {
+    const token = root.querySelector<SVGCircleElement>('[data-token]')!;
+    const bubble = root.querySelector<SVGGElement>('[data-bubble]')!;
+    const bubbleText = root.querySelector<SVGTextElement>('[data-bubble-text]')!;
+    const caption = root.querySelector<HTMLElement>('[data-caption]')!;
+    const replay = root.querySelector<HTMLButtonElement>('[data-replay]')!;
+
+    const storyText = caption.textContent ?? '';
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    // With reduced motion the static drawing and its text already say everything.
+    if (reduceMotion.matches) return;
+
+    const start: Point = [170, 40];
+    const receiver: Point = [170, 500];
+    const retryLoop: Point[] = [
+      [170, 450],
+      [210, 410],
+      [210, 380],
+      [170, 340],
+    ];
+    const attempt = (reply: string, say: string): Step[] => [{ to: receiver, reply, say }];
+    const back = (): Step[] => retryLoop.map((to, i) => ({ to, say: i === retryLoop.length - 1 ? 'Back in line to retry.' : undefined }));
+    const route: Step[] = [
+      ...attempt('500', 'Attempt 1: the receiver answers 500.'),
+      ...back(),
+      ...attempt('500', 'Attempt 2: 500 again.'),
+      ...back(),
+      ...attempt('200', 'Attempt 3: 200. Delivered.'),
+    ];
+
+    const speed = 300; // viewBox units per second
+    let run = 0;
+
+    const place = ([cx, cy]: Point) => {
+      token.setAttribute('cx', String(cx));
+      token.setAttribute('cy', String(cy));
+    };
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    const glide = (from: Point, to: Point, id: number) =>
+      new Promise<void>((resolve) => {
+        const length = Math.hypot(to[0] - from[0], to[1] - from[1]);
+        const duration = (length / speed) * 1000;
+        const t0 = performance.now();
+        const frame = (now: number) => {
+          if (id !== run) return resolve();
+          const t = duration === 0 ? 1 : Math.min(1, (now - t0) / duration);
+          place([from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t]);
+          if (t < 1) requestAnimationFrame(frame);
+          else resolve();
+        };
+        requestAnimationFrame(frame);
+      });
+
+    const play = async () => {
+      const id = ++run;
+      token.style.display = '';
+      bubble.style.display = 'none';
+      caption.textContent = 'An event enters at the API.';
+      place(start);
+      replay.hidden = true;
+      let at = start;
+      for (const step of route) {
+        await glide(at, step.to, id);
+        if (id !== run) return;
+        at = step.to;
+        if (step.say) caption.textContent = step.say;
+        if (step.reply) {
+          bubbleText.textContent = step.reply;
+          bubble.style.display = '';
+          await sleep(750);
+          if (id !== run) return;
+        }
+      }
+      caption.textContent = storyText;
+      replay.hidden = false;
+    };
+
+    replay.addEventListener('click', () => void play());
+
+    // Start once, when the map is actually on screen (on a phone it is below the hero).
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          observer.disconnect();
+          void play();
+        }
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(root);
+  }
+</script>
