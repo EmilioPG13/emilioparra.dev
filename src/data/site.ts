@@ -22,7 +22,7 @@ export const person = {
 
 // Umami Cloud. While the id is empty the script is not loaded at all.
 export const analytics = {
-  websiteId: '',
+  websiteId: 'b693f8dd-5217-4282-bba1-366eff591e0c',
   domain: 'emilioparra.dev',
 } as const;
 
