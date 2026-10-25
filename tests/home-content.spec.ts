@@ -20,6 +20,19 @@ test('email is plain visible text with a mailto link, and profiles are linked', 
   await expect(page.getByRole('link', { name: 'LinkedIn profile' })).toHaveAttribute('href', /linkedin\.com\/in\/emilio-parra/);
 });
 
+test('off-site links open in a new tab; the CV, mail and anchors stay in place', async ({ page }) => {
+  await page.goto('/');
+  const external = page.locator('a[href^="http"]');
+  expect(await external.count()).toBeGreaterThan(10);
+  for (const link of await external.all()) {
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', /noopener/);
+  }
+  for (const link of await page.locator('a[href^="#"], a[href^="mailto:"], a[href$=".pdf"]').all()) {
+    await expect(link).not.toHaveAttribute('target', '_blank');
+  }
+});
+
 test('the three languages lead to projects that exist on the page', async ({ page }) => {
   await page.goto('/');
   const bullets = page.getByRole('list', { name: 'Main languages' }).getByRole('link');

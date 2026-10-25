@@ -1,5 +1,5 @@
 ---
-import { featured, shortLines } from '../data/site';
+import { featured, shortLines, newTab } from '../data/site';
 import Arrow from './Arrow.astro';
 ---
 
@@ -50,9 +50,9 @@ import Arrow from './Arrow.astro';
                 <p class="mt-1 text-ink-muted">{station.text}</p>
                 {station.proof && (
                   <p class="mt-2">
-                    <a href={station.proof.href} class="font-semibold">
+                    <a href={station.proof.href} {...newTab} class="font-semibold">
                       {station.proof.label}
-                      <span class="sr-only"> for {station.title}</span>
+                      <span class="sr-only"> for {station.title} (opens in a new tab)</span>
                     </a>
                   </p>
                 )}
@@ -65,9 +65,11 @@ import Arrow from './Arrow.astro';
               <li>
                 <a
                   href={link.href}
+                  {...newTab}
                   class="inline-flex min-h-11 items-center gap-1 text-lg font-bold text-ink"
                 >
                   {link.label}
+                  <span class="sr-only"> (opens in a new tab)</span>
                   <Arrow />
                 </a>
               </li>
@@ -106,8 +108,9 @@ import Arrow from './Arrow.astro';
             <ul class="flex flex-wrap gap-x-6 md:flex-col md:gap-x-0">
               {project.links.map((link) => (
                 <li>
-                  <a href={link.href} class="inline-flex min-h-11 items-center gap-1 font-bold text-ink">
+                  <a href={link.href} {...newTab} class="inline-flex min-h-11 items-center gap-1 font-bold text-ink">
                     {link.label}
+                    <span class="sr-only"> (opens in a new tab)</span>
                     <Arrow />
                   </a>
                 </li>

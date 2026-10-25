@@ -20,6 +20,9 @@ export const person = {
   ],
 } as const;
 
+// Spread on every off-site link so the visitor keeps this page open.
+export const newTab = { target: '_blank', rel: 'noopener noreferrer' } as const;
+
 // Umami Cloud. While the id is empty the script is not loaded at all.
 export const analytics = {
   websiteId: 'b693f8dd-5217-4282-bba1-366eff591e0c',

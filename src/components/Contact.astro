@@ -1,5 +1,5 @@
 ---
-import { person } from '../data/site';
+import { person, newTab } from '../data/site';
 ---
 
 <section id="contact" aria-labelledby="contact-title" class="on-sign bg-sign text-sign-ink">
@@ -28,10 +28,14 @@ import { person } from '../data/site';
 
       <ul class="flex flex-wrap gap-x-8 gap-y-1 text-lg font-semibold">
         <li>
-          <a href={person.linkedin} class="inline-flex min-h-11 items-center">LinkedIn</a>
+          <a href={person.linkedin} {...newTab} class="inline-flex min-h-11 items-center">
+            LinkedIn<span class="sr-only"> (opens in a new tab)</span>
+          </a>
         </li>
         <li>
-          <a href={person.github} class="inline-flex min-h-11 items-center">GitHub</a>
+          <a href={person.github} {...newTab} class="inline-flex min-h-11 items-center">
+            GitHub<span class="sr-only"> (opens in a new tab)</span>
+          </a>
         </li>
       </ul>
 
@@ -39,8 +43,9 @@ import { person } from '../data/site';
         <span>Prefer a call? Book on</span>
         {
           person.calls.map((call) => (
-            <a href={call.href} class="inline-flex min-h-11 items-center font-semibold text-sign-ink">
+            <a href={call.href} {...newTab} class="inline-flex min-h-11 items-center font-semibold text-sign-ink">
               {call.label}
+              <span class="sr-only"> (opens in a new tab)</span>
             </a>
           ))
         }
