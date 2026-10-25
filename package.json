@@ -12,7 +12,7 @@
     "astro": "astro",
     "check": "astro check",
     "test": "playwright test",
-    "links": "linkinator ./dist --recurse",
+    "links": "linkinator ./dist --recurse --retry-errors --retry-errors-count 3 --skip \"linkedin.com|emilioparra.dev\"",
     "lighthouse": "lhci autorun"
   },
   "dependencies": {

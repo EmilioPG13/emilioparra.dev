@@ -40,13 +40,9 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      # The two steps below only warn until Phase 3 (launch). Remove
-      # continue-on-error then so that broken links and a Lighthouse
-      # regression block the merge.
+      # Broken links and a Lighthouse score under 0.95 block the merge.
       - name: Broken links
         run: npm run links
-        continue-on-error: true
 
       - name: Lighthouse CI
         run: npm run lighthouse
-        continue-on-error: true

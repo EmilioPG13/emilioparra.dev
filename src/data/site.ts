@@ -20,6 +20,12 @@ export const person = {
   ],
 } as const;
 
+// Umami Cloud. While the id is empty the script is not loaded at all.
+export const analytics = {
+  websiteId: 'b693f8dd-5217-4282-bba1-366eff591e0c',
+  domain: 'emilioparra.dev',
+} as const;
+
 export type LineColor = 'red' | 'blue' | 'amber' | 'brown';
 
 export interface Station {
