@@ -66,7 +66,9 @@ test.describe('crawl files', () => {
     expect(index.status()).toBe(200);
     const sitemap = await request.get('/sitemap-0.xml');
     expect(sitemap.status()).toBe(200);
-    expect(await sitemap.text()).toContain('https://emilioparra.dev/');
+    const body = await sitemap.text();
+    expect(body).toContain('https://emilioparra.dev/');
+    expect(body).toContain('https://emilioparra.dev/about/');
   });
 });
 

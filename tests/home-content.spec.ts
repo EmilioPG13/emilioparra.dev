@@ -45,13 +45,20 @@ test('the three languages lead to projects that exist on the page', async ({ pag
 
 test('every section the nav points to exists', async ({ page }) => {
   await page.goto('/');
-  for (const id of ['projects', 'experience', 'contact']) {
+  for (const id of ['projects', 'about', 'stack', 'experience', 'contact']) {
     await expect(page.locator(`#${id}`)).toHaveCount(1);
   }
   await expect(page.getByRole('heading', { level: 2 })).toHaveText([
+    'About',
     'Projects',
+    'Stack',
     'Experience',
     'Education',
+    'Contact',
+  ]);
+  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link')).toHaveText([
+    'Projects',
+    'About',
     'Contact',
   ]);
 });
@@ -134,4 +141,17 @@ test('the call links are secondary and live only in Contact', async ({ page }) =
   await expect(calls).toHaveCount(2);
   await expect(page.locator('#contact a[href^="https://calendly.com/"]')).toHaveCount(2);
   await expect(page.locator('section[aria-labelledby="hero-name"] a[href^="https://calendly.com/"]')).toHaveCount(0);
+});
+
+test('the home gives a short About that leads to the full page', async ({ page }) => {
+  await page.goto('/');
+  const link = page.getByRole('link', { name: /More about me/ });
+  await expect(link).toHaveAttribute('href', '/about');
+  await link.click();
+  await expect(page).toHaveURL(/\/about$/);
+});
+
+test('the stack is grouped by what the work is', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#stack h3')).toHaveText(['Frontend', 'Backend', 'Testing and deployment']);
 });

@@ -167,6 +167,16 @@ export const languages = [
   { name: 'TypeScript', lines: ['red', 'brown'], href: '#court-booking', used: 'Court Booking and Larsen Italiana' },
 ] as const satisfies readonly { name: string; lines: readonly LineColor[]; href: string; used: string }[];
 
+// Grouped by what the work is, from the CV skills; only tools used in the projects above.
+export const stack = [
+  { label: 'Frontend', items: 'React, TypeScript, Tailwind CSS, TanStack Query' },
+  { label: 'Backend', items: 'Java with Spring Boot, Python with FastAPI, Node.js with Express, PostgreSQL' },
+  {
+    label: 'Testing and deployment',
+    items: 'JUnit 5, Testcontainers, Playwright, GitHub Actions, Docker, Kubernetes, Terraform, AWS',
+  },
+] as const;
+
 export const experience = [
   {
     title: 'Digital Developer & Marketing',

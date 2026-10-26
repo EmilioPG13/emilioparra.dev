@@ -3,9 +3,11 @@ import { person } from '../data/site';
 
 const nav = [
   { label: 'Projects', href: '/#projects' },
-  { label: 'Experience', href: '/#experience' },
+  { label: 'About', href: '/about' },
   { label: 'Contact', href: '/#contact' },
 ];
+
+const current = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <header class="on-sign bg-sign text-sign-ink">
@@ -25,7 +27,8 @@ const nav = [
             <li>
               <a
                 href={item.href}
-                class="inline-flex min-h-11 items-center px-2 text-[0.95rem] font-semibold no-underline hover:underline sm:px-3"
+                aria-current={item.href === current ? 'page' : undefined}
+                class="inline-flex min-h-11 items-center px-2 text-[0.95rem] font-semibold no-underline hover:underline aria-[current=page]:underline sm:px-3"
               >
                 {item.label}
               </a>

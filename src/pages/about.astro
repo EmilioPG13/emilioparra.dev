@@ -1,0 +1,131 @@
+---
+import { Image } from 'astro:assets';
+import headshot from '../assets/headshot.jpg';
+import Layout from '../layouts/Layout.astro';
+import Arrow from '../components/Arrow.astro';
+import { person, newTab } from '../data/site';
+
+const facts = [
+  { label: 'Based in', value: 'Puebla, Mexico' },
+  { label: 'Languages', value: 'Spanish (native), English (C2), German (B1)' },
+  { label: 'Looking for', value: 'Remote Software Developer roles with US teams' },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  mainEntity: { '@type': 'Person', name: person.name, jobTitle: person.role, url: Astro.site?.href },
+};
+---
+
+<Layout
+  title="About | Emilio Parra"
+  description="How Emilio Parra went from marketing and interpreting to software development, how he works, and what he does outside the code."
+  jsonLd={jsonLd}
+>
+  <!-- Signage band: the page title and the one sentence that frames it. -->
+  <div class="on-sign border-b border-rule bg-sign text-sign-ink">
+    <div class="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pb-8 sm:pt-6">
+      <h1 class="text-[clamp(3rem,12vw,6rem)] font-extrabold leading-[0.95] tracking-tight">About</h1>
+      <p class="mt-2 max-w-[34ch] text-[clamp(1.35rem,4vw,2rem)] font-semibold">
+        A cousin, a pandemic and a bootcamp got me started, and I have not stopped since.
+      </p>
+    </div>
+  </div>
+
+  <article class="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14 lg:py-16">
+    <aside>
+      <Image
+        src={headshot}
+        alt="Emilio Parra"
+        width={144}
+        height={144}
+        densities={[1.5, 2]}
+        fit="cover"
+        position="top"
+        loading="eager"
+        class="size-28 rounded-full border-2 border-ink object-cover sm:size-36"
+      />
+      <dl class="mt-6 max-w-[14rem] border-t-[3px] border-ink">
+        {
+          facts.map((fact) => (
+            <div class="border-b border-rule py-3">
+              <dt class="text-base text-ink-muted">{fact.label}</dt>
+              <dd class="font-semibold">{fact.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </aside>
+
+    <div class="max-w-[62ch] space-y-14">
+      <section aria-labelledby="how-title">
+        <h2 id="how-title" class="text-3xl font-extrabold">How I got here</h2>
+        <div class="mt-5 space-y-4 text-lg">
+          <p>
+            I studied marketing, and to pay my own way I worked as a remote interpreter at the same time. While I was
+            finishing the degree, I started to doubt that this was what I wanted to do for a living.
+          </p>
+          <p>
+            Computers and programming had always interested me, but I thought it was too hard and never tried. My
+            cousin, who studied computer science, told me I could learn it on my own and pointed me to freeCodeCamp. I
+            started with small steps.
+          </p>
+          <p>
+            He saw that I was interested and suggested an online bootcamp. It was 2021, the pandemic had me at home
+            and I had the time, so I signed up. The more I learned about how software is built, the more it
+            interested me, and I am still learning it today.
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="first-title">
+        <h2 id="first-title" class="text-3xl font-extrabold">The first thing that worked</h2>
+        <div class="mt-5 space-y-4 text-lg">
+          <p>
+            The final project of my full-stack course at Codecademy was an e-commerce site, impulso-ecommerce. It was
+            the first time I made a backend and a frontend work together in one project. It cost me a lot of time, a
+            few tears and a lot of effort, and I got it working.
+          </p>
+          <p>
+            Today it looks simple to me, but back then it was a real challenge, and finishing it is when I knew I
+            liked this. The repository has been updated since, and its early commits show what it started as.
+          </p>
+          <p>
+            <a
+              href="https://github.com/EmilioPG13/impulso-ecommerce"
+              {...newTab}
+              class="font-semibold underline"
+            >
+              impulso-ecommerce on GitHub<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="work-title">
+        <h2 id="work-title" class="text-3xl font-extrabold">How I work</h2>
+        <div class="mt-5 space-y-4 text-lg">
+          <p>
+            I always test. It is tedious, and it is necessary. When something fails, I write the failure down and
+            keep testing until it passes. That habit is why every claim on my projects links to the test behind it.
+            On the front end, I also try to keep my wireframes from looking generic.
+          </p>
+          <p>
+            <a href="/#projects" class="inline-flex min-h-11 items-center gap-2 font-bold">
+              See the projects
+              <Arrow />
+            </a>
+          </p>
+        </div>
+      </section>
+
+      <section aria-labelledby="outside-title">
+        <h2 id="outside-title" class="text-3xl font-extrabold">Outside the code</h2>
+        <p class="mt-5 text-lg">
+          I love working out at the gym, and swimming after training. I also love movies and reading books.
+        </p>
+      </section>
+    </div>
+  </article>
+</Layout>
