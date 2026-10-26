@@ -3,12 +3,14 @@ import { featured, shortLines, newTab } from '../data/site';
 import Arrow from './Arrow.astro';
 ---
 
-<section id="projects" aria-labelledby="projects-title" class="pb-6 pt-10 sm:pt-16">
+<section id="projects" aria-labelledby="projects-title" class="pb-6">
   <div class="mx-auto max-w-6xl px-4 sm:px-6">
-    <h2 id="projects-title" class="text-4xl font-extrabold sm:text-5xl">Projects</h2>
-    <p class="mt-3 max-w-[55ch] text-lg text-ink-muted">
-      Two systems built to stay correct when things fail, and two shorter lines. Every stop links to the test or document behind it.
-    </p>
+    <div class="border-t-[3px] border-ink pt-8">
+      <h2 id="projects-title" class="text-3xl font-extrabold sm:text-4xl">Projects</h2>
+      <p class="mt-3 max-w-[55ch] text-lg text-ink-muted">
+        Two systems built to stay correct when things fail, and two shorter ones. Every claim links to the test or document behind it.
+      </p>
+    </div>
   </div>
 
   {
@@ -16,99 +18,73 @@ import Arrow from './Arrow.astro';
       <article
         id={project.id}
         aria-labelledby={`${project.id}-title`}
-        class="mt-10 sm:mt-14"
-        style={`--line: var(--line-${project.color}); --on: var(--on-${project.color});`}
+        class="mx-auto mt-10 max-w-6xl scroll-mt-20 px-4 sm:mt-14 sm:px-6"
       >
-        <div class="bg-[var(--line)] text-[var(--on)]">
-          <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 sm:px-6">
-            <span
-              class="grid size-11 shrink-0 place-items-center rounded-full bg-[var(--on)] text-xl font-extrabold text-[var(--line)]"
-              aria-hidden="true"
-            >
-              {project.letter}
-            </span>
-            <h3 id={`${project.id}-title`} class="text-2xl font-extrabold sm:text-3xl">
+        <div class="grid gap-8 border-t border-rule pt-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-14">
+          <div>
+            <h3 id={`${project.id}-title`} class="text-[clamp(1.5rem,3vw,2rem)] font-extrabold leading-tight">
               {project.name}
             </h3>
+            <p class="mt-2 text-base text-ink-muted">{project.stack}</p>
+            <p class="mt-5 max-w-[34ch] text-xl font-semibold leading-snug">{project.summary}</p>
+            <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-1">
+              {project.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    {...newTab}
+                    class="inline-flex min-h-11 items-center gap-1 text-lg font-bold"
+                  >
+                    {link.label}
+                    <span class="sr-only"> (opens in a new tab)</span>
+                    <Arrow />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {project.note && <p class="mt-1 max-w-[44ch] text-base text-ink-muted">{project.note}</p>}
           </div>
-        </div>
 
-        <div class="mx-auto max-w-6xl px-4 sm:px-6">
-          <p class="mt-6 max-w-[60ch] text-xl font-semibold leading-snug">{project.summary}</p>
-
-          <ol class:list={['stations mt-8', project.branch && 'branch']}>
-            {project.stations.map((station) => (
-              <li class:list={['station', station.branch && project.branch && 'has-branch']}>
-                {project.branch && station.branch && (
-                  <>
-                    <span class="jx jx-out" aria-hidden="true" />
-                    <span class="jx jx-side" aria-hidden="true" />
-                    <span class="jx jx-back" aria-hidden="true" />
-                  </>
-                )}
-                <h4 class="text-lg font-bold leading-snug">{station.title}</h4>
-                <p class="mt-1 text-ink-muted">{station.text}</p>
-                {station.proof && (
+          <ol class="divide-y divide-rule" aria-label={`Evidence for ${project.name}`}>
+            {project.evidence.map((item) => (
+              <li class="py-5 first:pt-0 last:pb-0">
+                <h4 class="text-lg font-bold leading-snug">{item.title}</h4>
+                <p class="mt-1 max-w-[60ch] text-ink-muted">{item.text}</p>
+                {item.proof && (
                   <p class="mt-2">
-                    <a href={station.proof.href} {...newTab} class="font-semibold">
-                      {station.proof.label}
-                      <span class="sr-only"> for {station.title} (opens in a new tab)</span>
+                    <a href={item.proof.href} {...newTab} class="link font-semibold">
+                      {item.proof.label}
+                      <span class="sr-only"> for {item.title} (opens in a new tab)</span>
                     </a>
                   </p>
                 )}
               </li>
             ))}
           </ol>
-
-          <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-1">
-            {project.links.map((link) => (
-              <li>
-                <a
-                  href={link.href}
-                  {...newTab}
-                  class="inline-flex min-h-11 items-center gap-1 text-lg font-bold text-ink"
-                >
-                  {link.label}
-                  <span class="sr-only"> (opens in a new tab)</span>
-                  <Arrow />
-                </a>
-              </li>
-            ))}
-          </ul>
-          {project.note && <p class="mt-1 max-w-[60ch] text-sm text-ink-muted">{project.note}</p>}
         </div>
       </article>
     ))
   }
 
   <div class="mx-auto mt-14 max-w-6xl px-4 sm:mt-20 sm:px-6">
-    <h3 class="text-2xl font-extrabold">Shorter lines</h3>
-    <ul class="mt-4">
+    <h3 class="text-2xl font-extrabold">Also built</h3>
+    <ul class="mt-4 border-t-[3px] border-ink">
       {
         shortLines.map((project) => (
           <li
             id={project.id}
-            class="grid gap-3 border-t-[6px] border-[var(--line)] py-6 md:grid-cols-[14rem_1fr_auto] md:gap-8"
-            style={`--line: var(--line-${project.color}); --on: var(--on-${project.color});`}
+            class="grid gap-3 border-b border-rule py-6 md:grid-cols-[14rem_1fr_auto] md:gap-8"
           >
-            <div class="flex items-center gap-3">
-              <span
-                class="grid size-9 shrink-0 place-items-center rounded-full bg-[var(--line)] text-base font-extrabold text-[var(--on)]"
-                aria-hidden="true"
-              >
-                {project.letter}
-              </span>
-              <h4 class="text-xl font-extrabold">{project.name}</h4>
-            </div>
+            <h4 class="text-xl font-extrabold">{project.name}</h4>
             <div>
               <p class="max-w-[60ch]">{project.summary}</p>
-              <p class="mt-1 text-sm text-ink-muted">{project.stack}</p>
-              {project.note && <p class="mt-1 text-sm text-ink-muted">{project.note}</p>}
+              <p class="mt-1 text-base text-ink-muted">{project.stack}</p>
+              {project.note && <p class="mt-1 text-base text-ink-muted">{project.note}</p>}
             </div>
             <ul class="flex flex-wrap gap-x-6 md:flex-col md:gap-x-0">
               {project.links.map((link) => (
                 <li>
-                  <a href={link.href} {...newTab} class="inline-flex min-h-11 items-center gap-1 font-bold text-ink">
+                  <a href={link.href} {...newTab} class="inline-flex min-h-11 items-center gap-1 font-bold">
                     {link.label}
                     <span class="sr-only"> (opens in a new tab)</span>
                     <Arrow />
@@ -122,99 +98,3 @@ import Arrow from './Arrow.astro';
     </ul>
   </div>
 </section>
-
-<style>
-  /* A line on the map: a rail with one disc per stop. Vertical on a phone,
-     horizontal from the large breakpoint up. */
-  .stations {
-    position: relative;
-    display: grid;
-    gap: 2rem;
-    padding-left: 2.75rem;
-    list-style: none;
-  }
-  .stations::before {
-    content: '';
-    position: absolute;
-    left: 0.6rem;
-    top: 0.5rem;
-    bottom: 0.5rem;
-    width: 0.5rem;
-    border-radius: 0.25rem;
-    background: var(--line);
-  }
-  .station {
-    position: relative;
-  }
-  .station::before {
-    content: '';
-    position: absolute;
-    left: -2.75rem;
-    top: 0.2rem;
-    width: 1.75rem;
-    height: 1.75rem;
-    box-sizing: border-box;
-    border: 0.4rem solid var(--line);
-    border-radius: 50%;
-    background: var(--platform);
-  }
-
-  .jx {
-    display: none;
-  }
-
-  @media (min-width: 64rem) {
-    /* A siding: the retry stop leaves the line at 45 degrees and rejoins it. */
-    .stations.branch {
-      padding-top: 5rem;
-    }
-    .branch .station::before {
-      top: -5rem;
-    }
-    .branch .station.has-branch::before {
-      top: -2.5rem;
-    }
-    .jx {
-      display: block;
-      position: absolute;
-      height: 0.5rem;
-      border-radius: 0.25rem;
-      background: var(--line);
-    }
-    .jx-out {
-      width: 3.54rem;
-      left: -2.145rem;
-      top: -3.125rem;
-      transform: rotate(45deg);
-    }
-    .jx-side {
-      width: 6rem;
-      left: 0.875rem;
-      top: -1.875rem;
-    }
-    .jx-back {
-      width: 3.54rem;
-      left: 6.355rem;
-      top: -3.125rem;
-      transform: rotate(-45deg);
-    }
-    .stations {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 2.5rem;
-      padding-left: 0;
-      padding-top: 3rem;
-    }
-    .stations::before {
-      left: 0.5rem;
-      right: 0.5rem;
-      top: 0.6rem;
-      bottom: auto;
-      width: auto;
-      height: 0.5rem;
-    }
-    .station::before {
-      left: 0;
-      top: -3rem;
-    }
-  }
-</style>

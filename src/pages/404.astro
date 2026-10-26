@@ -4,15 +4,11 @@ import Arrow from '../components/Arrow.astro';
 ---
 
 <Layout title="Page not found | Emilio Parra" description="This page does not exist." noindex>
-  <section class="on-sign border-b border-rule bg-sign text-sign-ink">
-    <div class="mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 sm:pt-10">
-      <p class="num text-[clamp(3rem,12vw,6rem)] font-bold leading-none" aria-hidden="true">404</p>
-      <h1 class="mt-2 text-[clamp(1.6rem,5vw,2.5rem)] font-extrabold">This stop is not on the map.</h1>
-    </div>
-  </section>
-  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-    <p class="max-w-[50ch] text-lg">The page you opened does not exist, or it moved.</p>
-    <ul class="mt-4 flex flex-wrap gap-x-8">
+  <section class="mx-auto max-w-6xl px-4 pb-6 pt-10 sm:px-6 sm:pt-16">
+    <p class="num text-[clamp(3rem,12vw,6rem)] font-bold leading-none text-ink-muted" aria-hidden="true">404</p>
+    <h1 class="mt-2 text-[clamp(1.6rem,5vw,2.5rem)] font-extrabold">This page is not here.</h1>
+    <p class="mt-4 max-w-[50ch] text-lg">The page you opened does not exist, or it moved.</p>
+    <ul class="mt-4 flex flex-wrap gap-x-8 pb-16">
       <li>
         <a href="/" class="inline-flex min-h-11 items-center gap-2 text-lg font-bold">
           Back to the home page
@@ -26,5 +22,5 @@ import Arrow from '../components/Arrow.astro';
         </a>
       </li>
     </ul>
-  </div>
+  </section>
 </Layout>

@@ -10,37 +10,28 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /*
- * Design tokens. The world is a transit map: a near-white platform, black
- * signage bands, and one flat colour per project line. The dark theme is the
- * same map at night service (own values, not an inversion), with the line
- * colours lit.
+ * Design tokens. A quiet editorial page: a near-white ground, near-black ink,
+ * one blue accent for links, focus and hover, and a single inverse band that
+ * closes the page. The dark theme has its own values (not an inversion).
  *
  * Contrast measured with WCAG 2.x relative luminance:
- *   light: ink on platform 17.0, muted 7.8, sign text 18.7, red line 5.2,
- *          blue 6.3, amber 3.4, brown 6.7 (all on the platform);
- *          white on red 5.7, blue 7.0, brown 7.4, ink on amber 5.1
- *   dark:  ink on platform 16.5, muted 8.1, sign text 17.7, every lit line
- *          colour 6.6 or more on the platform, and the same ratio for the
- *          dark text set on it
+ *   light: ink on page 17.0, muted 7.8, accent 6.3, white on accent 7.0,
+ *          inverse text 18.7, inverse muted 9.8
+ *   dark:  ink on page 16.5, muted 8.0, accent 7.7, dark page text on accent 7.7,
+ *          inverse text 21.0, inverse muted 10.9
  */
 :root {
-  --platform: #f4f4f1;
+  --page: #f4f4f1;
   --ink: #111214;
   --ink-muted: #4a4c52;
   --rule: #cfcfc9;
 
-  --sign: #111214;
-  --sign-ink: #ffffff;
-  --sign-muted: #b9bbc2;
+  --accent: #1f58a8;
+  --on-accent: #ffffff;
 
-  --line-red: #c42a1e;
-  --line-blue: #1f58a8;
-  --line-amber: #b87700;
-  --line-brown: #7b4a2b;
-  --on-red: #ffffff;
-  --on-blue: #ffffff;
-  --on-amber: #111214;
-  --on-brown: #ffffff;
+  --inverse: #111214;
+  --inverse-ink: #ffffff;
+  --inverse-muted: #b9bbc2;
 
   --focus: #1f58a8;
 }
@@ -52,21 +43,15 @@ html[data-theme="light"] {
 html[data-theme="dark"] {
   color-scheme: dark;
 
-  --platform: #0b0c0e;
+  --page: #0b0c0e;
   --ink: #ecece8;
   --ink-muted: #a4a6ad;
   --rule: #2a2c31;
 
-  --sign: #000000;
+  --accent: #6aa3ff;
+  --on-accent: #0b0c0e;
 
-  --line-red: #ff6252;
-  --line-blue: #6aa3ff;
-  --line-amber: #ffb41f;
-  --line-brown: #d49a6a;
-  --on-red: #0b0c0e;
-  --on-blue: #0b0c0e;
-  --on-amber: #0b0c0e;
-  --on-brown: #0b0c0e;
+  --inverse: #000000;
 
   --focus: #6aa3ff;
 }
@@ -75,31 +60,25 @@ html[data-theme="dark"] {
   --font-sans: "Overpass Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Overpass Mono Variable", ui-monospace, monospace;
 
-  --color-platform: var(--platform);
+  --color-page: var(--page);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --color-rule: var(--rule);
-  --color-sign: var(--sign);
-  --color-sign-ink: var(--sign-ink);
-  --color-sign-muted: var(--sign-muted);
-  --color-line-red: var(--line-red);
-  --color-line-blue: var(--line-blue);
-  --color-line-amber: var(--line-amber);
-  --color-line-brown: var(--line-brown);
-  --color-on-red: var(--on-red);
-  --color-on-blue: var(--on-blue);
-  --color-on-amber: var(--on-amber);
-  --color-on-brown: var(--on-brown);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-inverse: var(--inverse);
+  --color-inverse-ink: var(--inverse-ink);
+  --color-inverse-muted: var(--inverse-muted);
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 5rem;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--platform);
+  background: var(--page);
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
@@ -122,7 +101,7 @@ p {
 /* Browser surfaces that would otherwise keep their defaults. */
 ::selection {
   background: var(--ink);
-  color: var(--platform);
+  color: var(--page);
 }
 
 :focus-visible {
@@ -131,9 +110,9 @@ p {
   border-radius: 2px;
 }
 
-/* Focus on a signage (black) surface needs its own ring: the page one is dark. */
-.on-sign :focus-visible {
-  outline-color: var(--sign-ink);
+/* Focus on the inverse band needs its own ring: the page one is too low in contrast there. */
+.on-inverse :focus-visible {
+  outline-color: var(--inverse-ink);
 }
 
 a {
@@ -141,8 +120,23 @@ a {
   text-decoration-thickness: 1px;
 }
 
+/* Running-text link: accent colour, underlined, thicker on hover. */
+.link {
+  color: var(--accent);
+  text-decoration-line: underline;
+  transition: text-decoration-thickness 120ms ease-out;
+}
+
+.link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.on-inverse .link {
+  color: var(--inverse-ink);
+}
+
 html {
-  scrollbar-color: var(--ink-muted) var(--platform);
+  scrollbar-color: var(--ink-muted) var(--page);
 }
 
 .num {

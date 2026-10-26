@@ -29,31 +29,24 @@ export const analytics = {
   domain: 'emilioparra.dev',
 } as const;
 
-export type LineColor = 'red' | 'blue' | 'amber' | 'brown';
-
-export interface Station {
+export interface Evidence {
   title: string;
-  branch?: boolean;
   text: string;
   proof?: { label: string; href: string };
 }
 
 export interface FeaturedProject {
   id: string;
-  letter: string;
-  color: LineColor;
   name: string;
+  stack: string;
   summary: string;
   note?: string;
-  branch?: boolean;
-  stations: Station[];
+  evidence: Evidence[];
   links: { label: string; href: string }[];
 }
 
 export interface ShortProject {
   id: string;
-  letter: string;
-  color: LineColor;
   name: string;
   summary: string;
   stack: string;
@@ -67,13 +60,12 @@ const webhooksRepo = 'https://github.com/EmilioPG13/webhook-delivery-platform';
 export const featured: FeaturedProject[] = [
   {
     id: 'court-booking',
-    letter: 'C',
-    color: 'red',
     name: 'Court Booking',
+    stack: 'Python, FastAPI, PostgreSQL, React, TypeScript',
     summary:
       'A padel court booking app where a double booking is impossible by construction, not by checking first.',
     note: 'The demo is in Spanish, and the first load can take a few seconds while the database wakes up.',
-    stations: [
+    evidence: [
       {
         title: 'The database refuses overlaps',
         text: 'A PostgreSQL exclusion constraint on a time range rejects overlapping reservations. The API turns the violation into a 409.',
@@ -98,14 +90,12 @@ export const featured: FeaturedProject[] = [
   },
   {
     id: 'webhook-delivery-platform',
-    branch: true,
-    letter: 'W',
-    color: 'blue',
     name: 'Webhook Delivery Platform',
+    stack: 'Java, Spring Boot, PostgreSQL, Amazon SQS, Kubernetes, Terraform',
     summary:
       'A service that delivers webhooks to receivers that are down, slow or hostile, without losing an event.',
-    note: 'No live demo: it is a backend, so the map above and the tests are the evidence.',
-    stations: [
+    note: 'No live demo: it is a backend, so the tests and the measured results are the evidence.',
+    evidence: [
       {
         title: 'The event is saved before it is sent',
         text: 'A transactional outbox with at-least-once delivery, tested with Testcontainers on PostgreSQL 18.',
@@ -113,7 +103,6 @@ export const featured: FeaturedProject[] = [
       },
       {
         title: 'Retries for about 47 hours, then a dead-letter queue',
-        branch: true,
         text: 'Ten attempts with jitter, a circuit breaker per endpoint, and SSRF protection checked at connect time.',
         proof: { label: 'Read the decision', href: `${webhooksRepo}/blob/main/adr/0006-retry-schedule.md` },
       },
@@ -133,8 +122,6 @@ export const featured: FeaturedProject[] = [
 export const shortLines: ShortProject[] = [
   {
     id: 'price-tracker-bot',
-    letter: 'P',
-    color: 'amber',
     name: 'Price Tracker Bot',
     summary:
       'A Telegram bot that watches product prices in Mexican online stores and messages you when one drops to the price you asked for.',
@@ -147,8 +134,6 @@ export const shortLines: ShortProject[] = [
   },
   {
     id: 'larsen-italiana',
-    letter: 'L',
-    color: 'brown',
     name: 'Larsen Italiana',
     summary:
       'A bilingual (ES/EN) lead-generation site and inventory back office for Larsen Italiana, a distributor of rebuilt industrial knitting machines.',
@@ -160,12 +145,22 @@ export const shortLines: ShortProject[] = [
   },
 ];
 
-// Which project lines each language rides on, for the language bullets.
+// The three main languages, each linking to a project that uses it.
 export const languages = [
-  { name: 'Java', lines: ['blue'], href: '#webhook-delivery-platform', used: 'Webhook Delivery Platform' },
-  { name: 'Python', lines: ['red', 'amber'], href: '#court-booking', used: 'Court Booking and Price Tracker Bot' },
-  { name: 'TypeScript', lines: ['red', 'brown'], href: '#court-booking', used: 'Court Booking and Larsen Italiana' },
-] as const satisfies readonly { name: string; lines: readonly LineColor[]; href: string; used: string }[];
+  { name: 'Java', href: '#webhook-delivery-platform', used: 'Webhook Delivery Platform' },
+  { name: 'Python', href: '#court-booking', used: 'Court Booking and Price Tracker Bot' },
+  { name: 'TypeScript', href: '#court-booking', used: 'Court Booking and Larsen Italiana' },
+] as const satisfies readonly { name: string; href: string; used: string }[];
+
+// Grouped by what the work is, from the CV skills; only tools used in the projects above.
+export const stack = [
+  { label: 'Frontend', items: 'React, TypeScript, Tailwind CSS, TanStack Query' },
+  { label: 'Backend', items: 'Java with Spring Boot, Python with FastAPI, Node.js with Express, PostgreSQL' },
+  {
+    label: 'Testing and deployment',
+    items: 'JUnit 5, Testcontainers, Playwright, GitHub Actions, Docker, Kubernetes, Terraform, AWS',
+  },
+] as const;
 
 export const experience = [
   {

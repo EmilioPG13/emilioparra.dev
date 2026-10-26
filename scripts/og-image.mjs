@@ -1,6 +1,6 @@
 // Renders public/og.png (1200x630), the image shown when the site is shared on
-// LinkedIn. Flat shapes only, drawn from the same tokens as the site (night
-// service palette). Run with: node scripts/og-image.mjs
+// LinkedIn. Flat type on the page ground, from the same tokens as the site
+// (light theme). Run with: node scripts/og-image.mjs
 import { chromium } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -13,32 +13,18 @@ const font = `data:font/woff2;base64,${readFileSync(
 const html = `<!doctype html><html><head><style>
 @font-face { font-family: Overpass; src: url("${font}") format("woff2"); font-weight: 100 900; }
 * { margin: 0; box-sizing: border-box; }
-body { width: 1200px; height: 630px; background: #000; color: #fff; font-family: Overpass, sans-serif; position: relative; overflow: hidden; }
-.name { position: absolute; left: 80px; top: 110px; font-size: 150px; font-weight: 800; letter-spacing: -0.025em; line-height: 1; }
-.role { position: absolute; left: 84px; top: 280px; font-size: 56px; font-weight: 600; }
-.langs { position: absolute; left: 84px; top: 380px; display: flex; gap: 36px; font-size: 36px; font-weight: 600; }
-.lang { display: flex; align-items: center; gap: 14px; }
-.disc { width: 52px; height: 52px; border-radius: 50%; background: #fff; color: #000; display: grid; place-items: center; font-weight: 800; font-size: 30px; }
-.line { position: absolute; left: 0; width: 1200px; height: 14px; bottom: 76px; display: flex; }
-.line div { flex: 1; }
-.dots { position: absolute; bottom: 64px; left: 0; width: 1200px; display: flex; justify-content: space-around; padding: 0 140px; }
-.dot { width: 38px; height: 38px; border-radius: 50%; background: #000; border: 10px solid; }
+body { width: 1200px; height: 630px; background: #f4f4f1; color: #111214; font-family: Overpass, sans-serif; position: relative; overflow: hidden; }
+.rule { position: absolute; left: 80px; top: 80px; width: 1040px; height: 6px; background: #111214; }
+.name { position: absolute; left: 76px; top: 130px; font-size: 168px; font-weight: 800; letter-spacing: -0.025em; line-height: 1; }
+.role { position: absolute; left: 82px; top: 330px; font-size: 56px; font-weight: 600; color: #4a4c52; }
+.langs { position: absolute; left: 82px; top: 430px; font-size: 40px; font-weight: 700; display: flex; gap: 40px; }
+.url { position: absolute; left: 82px; bottom: 64px; font-size: 32px; font-weight: 600; color: #4a4c52; }
 </style></head><body>
+<div class="rule"></div>
 <div class="name">Emilio Parra</div>
 <div class="role">Software Developer</div>
-<div class="langs">
-  <span class="lang"><span class="disc">J</span>Java</span>
-  <span class="lang"><span class="disc">P</span>Python</span>
-  <span class="lang"><span class="disc">T</span>TypeScript</span>
-</div>
-<div class="line">
-  <div style="background:#ff6252"></div><div style="background:#6aa3ff"></div>
-  <div style="background:#ffb41f"></div><div style="background:#d49a6a"></div>
-</div>
-<div class="dots">
-  <span class="dot" style="border-color:#ff6252"></span><span class="dot" style="border-color:#6aa3ff"></span>
-  <span class="dot" style="border-color:#ffb41f"></span><span class="dot" style="border-color:#d49a6a"></span>
-</div>
+<div class="langs"><span>Java</span><span>Python</span><span>TypeScript</span></div>
+<div class="url">emilioparra.dev</div>
 </body></html>`;
 
 const browser = await chromium.launch();

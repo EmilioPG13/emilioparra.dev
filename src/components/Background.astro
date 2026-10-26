@@ -1,8 +1,24 @@
 ---
-import { experience, education } from '../data/site';
+import { stack, experience, education } from '../data/site';
 ---
 
-<section id="experience" aria-labelledby="experience-title" class="mx-auto max-w-6xl px-4 pb-6 pt-16 sm:px-6 sm:pt-24">
+<section id="stack" aria-labelledby="stack-title" class="mx-auto max-w-6xl px-4 pb-6 pt-16 sm:px-6 sm:pt-24">
+  <div class="grid gap-6 md:grid-cols-[14rem_1fr] md:gap-10">
+    <h2 id="stack-title" class="text-3xl font-extrabold sm:text-4xl">Stack</h2>
+    <ul class="border-t-[3px] border-ink">
+      {
+        stack.map((group) => (
+          <li class="grid gap-1 border-b border-rule py-4 sm:grid-cols-[13rem_1fr] sm:gap-8">
+            <h3 class="font-bold">{group.label}</h3>
+            <p class="max-w-[60ch]">{group.items}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<section id="experience" aria-labelledby="experience-title" class="mx-auto max-w-6xl px-4 pb-6 pt-12 sm:px-6 sm:pt-16">
   <div class="grid gap-6 md:grid-cols-[14rem_1fr] md:gap-10">
     <h2 id="experience-title" class="text-3xl font-extrabold sm:text-4xl">Experience</h2>
     <ul class="border-t-[3px] border-ink">
@@ -14,7 +30,7 @@ import { experience, education } from '../data/site';
               {job.where && <p class="text-ink-muted">{job.where}</p>}
               {job.detail && <p class="mt-2 max-w-[60ch]">{job.detail}</p>}
             </div>
-            <p class="num text-sm text-ink-muted sm:pt-1.5 sm:text-right">{job.when}</p>
+            <p class="num text-base text-ink-muted sm:pt-1 sm:text-right">{job.when}</p>
           </li>
         ))
       }
@@ -33,7 +49,7 @@ import { experience, education } from '../data/site';
               <span class="font-bold">{item.title}</span>
               <span class="text-ink-muted">, {item.where}</span>
             </p>
-            <p class="num text-sm text-ink-muted sm:text-right">{item.when}</p>
+            <p class="num text-base text-ink-muted sm:text-right">{item.when}</p>
           </li>
         ))
       }

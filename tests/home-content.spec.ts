@@ -45,13 +45,20 @@ test('the three languages lead to projects that exist on the page', async ({ pag
 
 test('every section the nav points to exists', async ({ page }) => {
   await page.goto('/');
-  for (const id of ['projects', 'experience', 'contact']) {
+  for (const id of ['projects', 'about', 'stack', 'experience', 'contact']) {
     await expect(page.locator(`#${id}`)).toHaveCount(1);
   }
   await expect(page.getByRole('heading', { level: 2 })).toHaveText([
+    'About',
     'Projects',
+    'Stack',
     'Experience',
     'Education',
+    'Contact',
+  ]);
+  await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link')).toHaveText([
+    'Projects',
+    'About',
     'Contact',
   ]);
 });
@@ -93,32 +100,6 @@ test('no horizontal scrolling', async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(0);
 });
 
-test.describe('life of an event map', () => {
-  test('with reduced motion it stays static and still tells the whole story', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/');
-    const map = page.locator('[data-event-map]');
-    await expect(map.getByRole('img', { name: 'The life of a webhook event' })).toBeVisible();
-    await expect(map.getByText('500, 500, 200', { exact: true })).toBeVisible();
-    await expect(map.getByText(/delivered on attempt 3/)).toBeVisible();
-    await expect(map.getByText('Dead-letter queue', { exact: true })).toBeVisible();
-    await expect(map.locator('[data-token]')).toBeHidden();
-    await expect(map.getByRole('button', { name: 'Replay the event' })).toBeHidden();
-  });
-
-  test('with motion it plays once and offers a replay', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await page.goto('/');
-    await page.locator('[data-event-map]').scrollIntoViewIfNeeded();
-    const replay = page.getByRole('button', { name: 'Replay the event' });
-    await expect(replay).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('[data-bubble-text]')).toHaveText('200');
-    await replay.click();
-    await expect(replay).toBeHidden();
-    await expect(replay).toBeVisible({ timeout: 20_000 });
-  });
-});
-
 test('the CV link serves a real PDF', async ({ page, request }) => {
   await page.goto('/');
   const href = await page.getByRole('link', { name: /Download CV/ }).first().getAttribute('href');
@@ -134,4 +115,18 @@ test('the call links are secondary and live only in Contact', async ({ page }) =
   await expect(calls).toHaveCount(2);
   await expect(page.locator('#contact a[href^="https://calendly.com/"]')).toHaveCount(2);
   await expect(page.locator('section[aria-labelledby="hero-name"] a[href^="https://calendly.com/"]')).toHaveCount(0);
+});
+
+test('the home gives a short About that leads to the full page', async ({ page }) => {
+  await page.goto('/');
+  const link = page.getByRole('link', { name: /More about me/ });
+  await expect(link).toHaveAttribute('href', '/about');
+  await link.click();
+  await expect(page).toHaveURL(/\/about$/);
+});
+
+test('the stack is grouped by what the work is', async ({ page }) => {
+  await page.goto('/');
+  const groups = page.locator('#stack h3');
+  await expect(groups).toHaveText(['Frontend', 'Backend', 'Testing and deployment']);
 });

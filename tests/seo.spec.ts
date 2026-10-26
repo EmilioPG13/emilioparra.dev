@@ -66,7 +66,9 @@ test.describe('crawl files', () => {
     expect(index.status()).toBe(200);
     const sitemap = await request.get('/sitemap-0.xml');
     expect(sitemap.status()).toBe(200);
-    expect(await sitemap.text()).toContain('https://emilioparra.dev/');
+    const body = await sitemap.text();
+    expect(body).toContain('https://emilioparra.dev/');
+    expect(body).toContain('https://emilioparra.dev/about/');
   });
 });
 
@@ -74,7 +76,7 @@ test.describe('404 page', () => {
   test('unknown routes show the custom page, out of search results', async ({ page }) => {
     const response = await page.goto('/this-page-does-not-exist');
     expect(response?.status()).toBe(404);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('This stop is not on the map.');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page is not here.');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
     await expect(page.getByRole('link', { name: /Back to the home page/ })).toHaveAttribute('href', '/');
   });
