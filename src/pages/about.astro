@@ -11,6 +11,33 @@ const facts = [
   { label: 'Looking for', value: 'Remote Software Developer roles with US teams' },
 ];
 
+// His four favorite films (as on Letterboxd) and four favorite books, in his order.
+interface Favorite {
+  title: string;
+  by?: string;
+}
+
+const favorites: { label: string; items: Favorite[] }[] = [
+  {
+    label: 'Favorite films',
+    items: [
+      { title: 'The Godfather' },
+      { title: 'Evangelion: 3.0+1.01 Thrice Upon a Time' },
+      { title: 'La La Land' },
+      { title: 'Speed Racer' },
+    ],
+  },
+  {
+    label: 'Favorite books',
+    items: [
+      { title: 'The Great Gatsby', by: 'F. Scott Fitzgerald' },
+      { title: 'The Lord of the Rings', by: 'J. R. R. Tolkien' },
+      { title: 'The Dark Tower series', by: 'Stephen King' },
+      { title: 'The Divine Comedy', by: 'Dante Alighieri' },
+    ],
+  },
+];
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
@@ -28,7 +55,7 @@ const jsonLd = {
     <div class="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pb-8 sm:pt-6">
       <h1 class="text-[clamp(3rem,12vw,6rem)] font-extrabold leading-[0.95] tracking-tight">About</h1>
       <p class="mt-2 max-w-[34ch] text-[clamp(1.35rem,4vw,2rem)] font-semibold">
-        A cousin, a pandemic and a bootcamp got me started, and I have not stopped since.
+        A family member, a pandemic and a bootcamp got me started, and I have not stopped since.
       </p>
     </div>
   </div>
@@ -67,12 +94,12 @@ const jsonLd = {
             finishing the degree, I started to doubt that this was what I wanted to do for a living.
           </p>
           <p>
-            Computers and programming had always interested me, but I thought it was too hard and never tried. My
-            cousin, who studied computer science, told me I could learn it on my own and pointed me to freeCodeCamp. I
-            started with small steps.
+            Computers and programming had always interested me, but I thought it was too hard and never tried. A
+            family member who studied computer science told me I could learn it on my own and pointed me to
+            freeCodeCamp. I started with small steps.
           </p>
           <p>
-            He saw that I was interested and suggested an online bootcamp. It was 2021, the pandemic had me at home
+            They saw that I was interested and suggested an online bootcamp. It was 2021, the pandemic had me at home
             and I had the time, so I signed up. The more I learned about how software is built, the more it
             interested me, and I am still learning it today.
           </p>
@@ -125,6 +152,25 @@ const jsonLd = {
         <p class="mt-5 text-lg">
           I love working out at the gym, and swimming after training. I also love movies and reading books.
         </p>
+        <dl class="mt-6 border-t-[3px] border-ink">
+          {
+            favorites.map((group) => (
+              <div class="grid gap-1 border-b border-rule py-4 sm:grid-cols-[11rem_1fr] sm:gap-8">
+                <dt class="font-bold">{group.label}</dt>
+                <dd>
+                  <ol class="space-y-1">
+                    {group.items.map((item) => (
+                      <li>
+                        <span class="font-semibold">{item.title}</span>
+                        {item.by && <span class="text-ink-muted">, {item.by}</span>}
+                      </li>
+                    ))}
+                  </ol>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
       </section>
     </div>
   </article>

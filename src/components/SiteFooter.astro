@@ -5,10 +5,13 @@ import { person, newTab } from '../data/site';
 <footer class="on-sign bg-sign text-sign-muted">
   <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-6 text-sm sm:px-6">
     <p>{person.name}, Puebla, Mexico. Open to remote roles with US teams.</p>
-    <p>
-      <a href={person.github} {...newTab} class="text-sign-ink">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
-      <span aria-hidden="true">/</span>
-      <a href={person.linkedin} {...newTab} class="text-sign-ink">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>
-    </p>
+    <ul class="flex gap-6">
+      <li>
+        <a href={person.github} {...newTab} class="inline-flex min-h-11 items-center text-sign-ink">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
+      </li>
+      <li>
+        <a href={person.linkedin} {...newTab} class="inline-flex min-h-11 items-center text-sign-ink">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>
+      </li>
+    </ul>
   </div>
 </footer>

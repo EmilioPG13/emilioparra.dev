@@ -39,3 +39,20 @@ test('the nav marks the current page', async ({ page }) => {
     'page',
   );
 });
+
+test('about lists four favorite films and four favorite books', async ({ page }) => {
+  await page.goto('/about');
+  const films = page.locator('dt', { hasText: 'Favorite films' }).locator('xpath=following-sibling::dd[1]//li');
+  const books = page.locator('dt', { hasText: 'Favorite books' }).locator('xpath=following-sibling::dd[1]//li');
+  await expect(films).toHaveCount(4);
+  await expect(books).toHaveCount(4);
+  await expect(films.first()).toContainText('The Godfather');
+  await expect(books.first()).toContainText('The Great Gatsby');
+});
+
+test('about names a family member, not a cousin', async ({ page }) => {
+  await page.goto('/about');
+  const text = await page.locator('main').innerText();
+  expect(text).toContain('A family member');
+  expect(text).not.toMatch(/cousin/i);
+});
