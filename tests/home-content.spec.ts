@@ -155,3 +155,14 @@ test('the stack is grouped by what the work is', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#stack h3')).toHaveText(['Frontend', 'Backend', 'Testing and deployment']);
 });
+
+test('language marks gain their colour on hover', async ({ page }) => {
+  await page.goto('/');
+  // Touch screens have no hover, and the styles are guarded so colour does not stick after a tap.
+  test.skip(!(await page.evaluate(() => matchMedia('(hover: hover)').matches)), 'no hover on this device');
+  const link = page.getByRole('list', { name: 'Main languages' }).getByRole('link').first();
+  const colour = link.locator('svg').nth(1);
+  await expect(colour).toHaveCSS('opacity', '0');
+  await link.hover();
+  await expect(colour).toHaveCSS('opacity', '1');
+});
