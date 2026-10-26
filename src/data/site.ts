@@ -29,6 +29,9 @@ export const analytics = {
   domain: 'emilioparra.dev',
 } as const;
 
+// Each project owns one flat hue, used for its name underline and hover wash.
+export type Hue = 'red' | 'blue' | 'amber' | 'brown';
+
 export interface Evidence {
   title: string;
   text: string;
@@ -37,6 +40,7 @@ export interface Evidence {
 
 export interface FeaturedProject {
   id: string;
+  hue: Hue;
   name: string;
   stack: string;
   summary: string;
@@ -47,6 +51,7 @@ export interface FeaturedProject {
 
 export interface ShortProject {
   id: string;
+  hue: Hue;
   name: string;
   summary: string;
   stack: string;
@@ -60,6 +65,7 @@ const webhooksRepo = 'https://github.com/EmilioPG13/webhook-delivery-platform';
 export const featured: FeaturedProject[] = [
   {
     id: 'court-booking',
+    hue: 'red',
     name: 'Court Booking',
     stack: 'Python, FastAPI, PostgreSQL, React, TypeScript',
     summary:
@@ -90,6 +96,7 @@ export const featured: FeaturedProject[] = [
   },
   {
     id: 'webhook-delivery-platform',
+    hue: 'blue',
     name: 'Webhook Delivery Platform',
     stack: 'Java, Spring Boot, PostgreSQL, Amazon SQS, Kubernetes, Terraform',
     summary:
@@ -122,6 +129,7 @@ export const featured: FeaturedProject[] = [
 export const shortLines: ShortProject[] = [
   {
     id: 'price-tracker-bot',
+    hue: 'amber',
     name: 'Price Tracker Bot',
     summary:
       'A Telegram bot that watches product prices in Mexican online stores and messages you when one drops to the price you asked for.',
@@ -134,6 +142,7 @@ export const shortLines: ShortProject[] = [
   },
   {
     id: 'larsen-italiana',
+    hue: 'brown',
     name: 'Larsen Italiana',
     summary:
       'A bilingual (ES/EN) lead-generation site and inventory back office for Larsen Italiana, a distributor of rebuilt industrial knitting machines.',

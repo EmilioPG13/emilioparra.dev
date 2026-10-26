@@ -23,26 +23,26 @@ const jsonLd = {
   description="How Emilio Parra went from marketing and interpreting to software development, how he works, and what he does outside the code."
   jsonLd={jsonLd}
 >
-  <article class="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pb-24 sm:pt-16">
-    <h1 class="text-[clamp(3.25rem,12vw,6rem)] font-extrabold leading-[0.95] tracking-tight">About</h1>
-    <p class="mt-6 max-w-[28ch] text-[clamp(1.6rem,4.2vw,2.5rem)] font-bold leading-[1.12]">
+  <article class="mx-auto max-w-4xl px-4 pb-16 pt-10 sm:px-6 sm:pb-24 sm:pt-16">
+    <h1 class="rise text-[clamp(3rem,10vw,4.75rem)] font-extrabold leading-[0.95] tracking-tight">About</h1>
+    <p class="rise mt-6 max-w-[28ch] text-[clamp(1.6rem,4.2vw,2.5rem)] font-bold leading-[1.12]" style="--d: 120ms">
       A cousin, a pandemic and a bootcamp got me started, and I have not stopped since.
     </p>
 
-    <div class="mt-12 grid gap-12 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-16">
+    <div class="mt-12 grid gap-12 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-14">
       <aside class="lg:sticky lg:top-8 lg:self-start">
         <Image
           src={headshot}
           alt="Emilio Parra"
-          width={288}
-          height={384}
+          width={160}
+          height={160}
           densities={[1.5, 2]}
           fit="cover"
           position="top"
           loading="eager"
-          class="aspect-[3/4] w-full max-w-[18rem] object-cover"
+          class="size-32 rounded-full border-2 border-ink object-cover sm:size-40"
         />
-        <dl class="mt-6 max-w-[18rem] border-t-[3px] border-ink">
+        <dl class="mt-6 max-w-[14rem] border-t-[3px] border-ink">
           {
             facts.map((fact) => (
               <div class="border-b border-rule py-3">
@@ -55,7 +55,7 @@ const jsonLd = {
       </aside>
 
       <div class="max-w-[62ch] space-y-14">
-        <section aria-labelledby="how-title">
+        <section aria-labelledby="how-title" data-reveal>
           <h2 id="how-title" class="text-3xl font-extrabold">How I got here</h2>
           <div class="mt-5 space-y-4 text-lg">
             <p>
@@ -75,7 +75,7 @@ const jsonLd = {
           </div>
         </section>
 
-        <section aria-labelledby="first-title">
+        <section aria-labelledby="first-title" data-reveal>
           <h2 id="first-title" class="text-3xl font-extrabold">The first thing that worked</h2>
           <div class="mt-5 space-y-4 text-lg">
             <p>
@@ -99,7 +99,7 @@ const jsonLd = {
           </div>
         </section>
 
-        <section aria-labelledby="work-title">
+        <section aria-labelledby="work-title" data-reveal>
           <h2 id="work-title" class="text-3xl font-extrabold">How I work</h2>
           <div class="mt-5 space-y-4 text-lg">
             <p>
@@ -108,7 +108,7 @@ const jsonLd = {
               On the front end, I also try to keep my wireframes from looking generic.
             </p>
             <p>
-              <a href="/#projects" class="inline-flex min-h-11 items-center gap-2 font-bold">
+              <a href="/#projects" class="group inline-flex min-h-11 items-center gap-2 font-bold">
                 See the projects
                 <Arrow />
               </a>
@@ -116,7 +116,7 @@ const jsonLd = {
           </div>
         </section>
 
-        <section aria-labelledby="outside-title">
+        <section aria-labelledby="outside-title" data-reveal>
           <h2 id="outside-title" class="text-3xl font-extrabold">Outside the code</h2>
           <p class="mt-5 text-lg">
             I love working out at the gym, and swimming after training. I also love movies and reading books.

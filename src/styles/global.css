@@ -29,11 +29,13 @@
   --accent: #1f58a8;
   --on-accent: #ffffff;
 
-  --inverse: #111214;
-  --inverse-ink: #ffffff;
-  --inverse-muted: #b9bbc2;
-
   --focus: #1f58a8;
+
+  /* One flat hue per project: underline and hover wash, never body text on the page. */
+  --hue-red: #c42a1e;
+  --hue-blue: #1f58a8;
+  --hue-amber: #b87700;
+  --hue-brown: #7b4a2b;
 }
 
 html[data-theme="light"] {
@@ -51,9 +53,12 @@ html[data-theme="dark"] {
   --accent: #6aa3ff;
   --on-accent: #0b0c0e;
 
-  --inverse: #000000;
-
   --focus: #6aa3ff;
+
+  --hue-red: #ff6252;
+  --hue-blue: #6aa3ff;
+  --hue-amber: #ffb41f;
+  --hue-brown: #d49a6a;
 }
 
 @theme inline {
@@ -66,9 +71,6 @@ html[data-theme="dark"] {
   --color-rule: var(--rule);
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
-  --color-inverse: var(--inverse);
-  --color-inverse-ink: var(--inverse-ink);
-  --color-inverse-muted: var(--inverse-muted);
 }
 
 html {
@@ -110,9 +112,9 @@ p {
   border-radius: 2px;
 }
 
-/* Focus on the inverse band needs its own ring: the page one is too low in contrast there. */
-.on-inverse :focus-visible {
-  outline-color: var(--inverse-ink);
+/* Focus on the accent band needs its own ring: the page one disappears there. */
+.on-band :focus-visible {
+  outline-color: var(--on-accent);
 }
 
 a {
@@ -131,9 +133,7 @@ a {
   text-decoration-thickness: 2px;
 }
 
-.on-inverse .link {
-  color: var(--inverse-ink);
-}
+
 
 html {
   scrollbar-color: var(--ink-muted) var(--page);
@@ -142,6 +142,84 @@ html {
 .num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Motion. Everything starts visible and is hidden only when scripting and
+ * motion are both available, so the page reads fine without either.
+ * The hero rises in sequence on load; sections reveal once on scroll.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .js [data-reveal].in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .draw::after {
+    animation: draw 700ms cubic-bezier(0.22, 1, 0.36, 1) 700ms both;
+  }
+}
+
+/* A line under a phrase that draws itself once. */
+.draw {
+  position: relative;
+  white-space: nowrap;
+}
+
+.draw::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.06em;
+  height: 0.12em;
+  background: var(--accent);
+  transform-origin: left;
+}
+
+/* A project row: the name carries its hue as an underline, the row washes in it on hover. */
+.project {
+  --c: var(--hue-red);
+}
+
+.project-name {
+  text-decoration-line: underline;
+  text-decoration-color: var(--c);
+  text-decoration-thickness: 0.14em;
+  text-underline-offset: 0.18em;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,10 +2,10 @@
 import { person, newTab } from '../data/site';
 ---
 
-<section id="contact" aria-labelledby="contact-title" class="on-inverse bg-inverse text-inverse-ink dark:border-t dark:border-rule">
-  <div class="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+<section id="contact" aria-labelledby="contact-title" class="on-band bg-accent text-on-accent">
+  <div class="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20" data-reveal>
     <h2 id="contact-title" class="text-4xl font-extrabold sm:text-6xl">Contact</h2>
-    <p class="mt-3 max-w-[40ch] text-lg text-inverse-muted">
+    <p class="mt-3 max-w-[40ch] text-lg text-on-accent/80">
       The fastest way to know if I fit is the CV. To talk, write to me.
     </p>
 
@@ -15,7 +15,7 @@ import { person, newTab } from '../data/site';
         download
         data-umami-event="download-cv"
         data-umami-event-location="contact"
-        class="inline-flex min-h-14 items-center gap-4 bg-inverse-ink px-6 text-lg font-bold text-inverse no-underline hover:bg-inverse-muted"
+        class="inline-flex min-h-14 items-center gap-4 bg-on-accent px-6 text-lg font-bold text-accent no-underline transition-transform duration-200 hover:-translate-y-0.5"
       >
         <span>Download CV</span>
         <span class="num text-sm font-semibold opacity-80">PDF</span>
@@ -39,13 +39,13 @@ import { person, newTab } from '../data/site';
         </li>
       </ul>
 
-      <p class="flex flex-wrap items-center gap-x-2 text-base text-inverse-muted">
+      <p class="flex flex-wrap items-center gap-x-2 text-base text-on-accent/80">
         <span>Prefer a call? Book on</span>
         {
           person.calls.map((call, index) => (
             <Fragment>
               {index > 0 && <span>or</span>}
-              <a href={call.href} {...newTab} class="inline-flex min-h-11 items-center px-1 font-semibold text-inverse-ink">
+              <a href={call.href} {...newTab} class="inline-flex min-h-11 items-center px-1 font-semibold text-on-accent">
                 {call.label}
                 <span class="sr-only"> (opens in a new tab)</span>
               </a>

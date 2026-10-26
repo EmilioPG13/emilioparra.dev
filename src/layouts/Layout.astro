@@ -75,6 +75,7 @@ const ogImage = new URL('/og.png', Astro.site).href;
     <script is:inline>
       (() => {
         const root = document.documentElement;
+        root.classList.add('js');
         const media = matchMedia('(prefers-color-scheme: dark)');
         const readStored = () => {
           try {
@@ -106,5 +107,26 @@ const ogImage = new URL('/og.png', Astro.site).href;
       <slot />
     </main>
     <SiteFooter />
+    <script>
+      // Sections reveal once as they enter the screen. Without this script
+      // (or without motion) the CSS never hides them in the first place.
+      const items = document.querySelectorAll('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('in');
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+        );
+        items.forEach((el) => io.observe(el));
+      } else {
+        items.forEach((el) => el.classList.add('in'));
+      }
+    </script>
   </body>
 </html>

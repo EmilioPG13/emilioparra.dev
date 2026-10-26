@@ -130,3 +130,30 @@ test('the stack is grouped by what the work is', async ({ page }) => {
   const groups = page.locator('#stack h3');
   await expect(groups).toHaveText(['Frontend', 'Backend', 'Testing and deployment']);
 });
+
+test.describe('motion', () => {
+  test('sections reveal once as they enter the screen', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/');
+    const contact = page.locator('#contact [data-reveal]');
+    await expect(contact).not.toHaveClass(/\bin\b/);
+    await contact.scrollIntoViewIfNeeded();
+    await expect(contact).toHaveClass(/\bin\b/);
+  });
+
+  test('with reduced motion nothing is hidden or animated in', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const opacity = await page.locator('#contact [data-reveal]').evaluate((el) => getComputedStyle(el).opacity);
+    expect(opacity).toBe('1');
+  });
+
+  test('the content is readable without JavaScript', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto('/');
+    await expect(page.locator('#contact [data-reveal]')).toBeVisible();
+    expect(await page.locator('#contact [data-reveal]').evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+    await context.close();
+  });
+});
