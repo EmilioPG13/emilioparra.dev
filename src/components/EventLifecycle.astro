@@ -1,0 +1,199 @@
+---
+// Where the database commits sit in the life of a webhook event and what
+// absorbs each failure. Content is the "How it works" and "What happens when
+// things fail" sections of the Webhook Delivery Platform README, plus ADR 1 and
+// ADR 6; every failure row links to the test that causes it. Static on purpose:
+// the animated version of the same journey is the map on the home page.
+const repo = 'https://github.com/EmilioPG13/webhook-delivery-platform/blob/main';
+const tests = `${repo}/src/test/java/io/github/emiliopg13/webhooks`;
+
+interface Step {
+  title: string;
+  tag: string;
+  /** Whether a database write is committed at this station. */
+  db: boolean;
+  what: string[];
+  fail?: { case: string; result: string[] };
+  proof: { label: string; href: string };
+}
+
+// Lines are broken by hand to fit the 340-unit-wide drawing at 16px.
+const steps: Step[] = [
+  {
+    title: 'Publish',
+    tag: '',
+    db: false,
+    what: ['Checked, rate limited, and', 'deduplicated by Idempotency-Key.'],
+    fail: { case: '20 identical publishes at once', result: ['Exactly one event.'] },
+    proof: { label: 'ConcurrentPublishTest', href: `${tests}/event/ConcurrentPublishTest.java` },
+  },
+  {
+    title: 'Save',
+    tag: 'one transaction',
+    db: true,
+    what: ['The event and one delivery per', 'active endpoint are inserted.'],
+    proof: { label: 'ADR 1: at-least-once', href: `${repo}/adr/0001-at-least-once-delivery.md` },
+  },
+  {
+    title: 'Enqueue',
+    tag: 'commits first',
+    db: true,
+    what: ['Due deliveries are marked', 'enqueued and committed. Only', 'then are ids sent to SQS.'],
+    fail: { case: 'SQS is down', result: ['Deliveries wait as enqueued;', 'the reaper gives them back.'] },
+    proof: { label: 'InfrastructureOutageTest', href: `${tests}/delivery/InfrastructureOutageTest.java` },
+  },
+  {
+    title: 'Claim',
+    tag: 'own statement',
+    db: true,
+    what: ['A consumer reads the message', 'and claims the delivery', 'with a lease.'],
+    fail: { case: 'Database fails at the claim', result: ['The message is kept and', 'redelivered.'] },
+    proof: { label: 'InfrastructureOutageTest', href: `${tests}/delivery/InfrastructureOutageTest.java` },
+  },
+  {
+    title: 'Send',
+    tag: 'no transaction',
+    db: false,
+    what: ['Signed with HMAC, then sent', 'through a guard that refuses', 'private addresses.'],
+    fail: {
+      case: 'Worker dies before recording',
+      result: ['The lease expires; the receiver', 'gets it twice, same webhook-id.'],
+    },
+    proof: { label: 'WorkerCrashTest', href: `${tests}/delivery/WorkerCrashTest.java` },
+  },
+  {
+    title: 'Record',
+    tag: 'one short transaction',
+    db: true,
+    what: ['The attempt and next state are', 'saved. Only then is the queue', 'message deleted.'],
+    fail: { case: 'Receiver keeps failing', result: ['Up to 10 attempts, about 47 h,', 'then it is marked failed.'] },
+    proof: { label: 'ADR 6: retry schedule', href: `${repo}/adr/0006-retry-schedule.md` },
+  },
+];
+
+const lineHeight = 21;
+const railX = 22;
+const textX = 56;
+const width = 340;
+
+// Stack the stations top to bottom and remember where each one starts.
+let cursor = 30;
+const placed = steps.map((step) => {
+  const top = cursor;
+  const failLines = step.fail ? 1 + step.fail.result.length : 0;
+  const whatTop = top + 28;
+  const failTop = whatTop + step.what.length * lineHeight + (step.fail ? 8 : 0);
+  const proofY = failTop + failLines * lineHeight + 16;
+  cursor = proofY + 34;
+  return { ...step, top, whatTop, failTop, proofY };
+});
+const height = cursor - 12;
+---
+
+<figure class="m-0">
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    class="block h-auto w-full max-w-[26rem]"
+    role="group"
+    aria-labelledby="lifecycle-title"
+  >
+    <title id="lifecycle-title">The life of a webhook event, with what absorbs each failure</title>
+
+    <!-- The line itself, flat colour. -->
+    <path
+      d={`M${railX} ${placed[0].top} V${placed[placed.length - 1].top}`}
+      fill="none"
+      stroke="var(--line-blue)"
+      stroke-width="8"
+      stroke-linecap="round"></path>
+
+    {
+      placed.map((s) => (
+        <g>
+          <circle
+            cx={railX}
+            cy={s.top}
+            r="11"
+            fill={s.db ? 'var(--line-blue)' : 'var(--platform)'}
+            stroke="var(--line-blue)"
+            stroke-width="6"
+          />
+          <text x={textX} y={s.top + 6} class="title">
+            {s.title}
+          </text>
+          {s.tag && (
+            <text x={width} y={s.top + 6} text-anchor="end" class="tag">
+              {s.tag}
+            </text>
+          )}
+          {s.what.map((line, i) => (
+            <text x={textX} y={s.whatTop + 12 + i * lineHeight} class="body">
+              {line}
+            </text>
+          ))}
+          {s.fail && (
+            <g>
+              <path
+                d={`M${textX - 8} ${s.failTop + 8} l7 -7 l7 7 l-7 7 z`}
+                fill="var(--line-red)"
+              />
+              <text x={textX + 12} y={s.failTop + 13} class="case">
+                {s.fail.case}
+              </text>
+              {s.fail.result.map((line, i) => (
+                <text x={textX + 12} y={s.failTop + 13 + (i + 1) * lineHeight} class="body">
+                  {line}
+                </text>
+              ))}
+            </g>
+          )}
+          <a href={s.proof.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.proof.label} (opens in a new tab)`}>
+            <rect x={textX - 4} y={s.proofY - 18} width={width - textX} height="30" fill="transparent" />
+            <text x={textX} y={s.proofY} class="proof">
+              {s.proof.label}
+            </text>
+          </a>
+        </g>
+      ))
+    }
+  </svg>
+
+  <figcaption class="mt-3 max-w-[40ch] text-base text-ink-muted">
+    Filled stations commit to PostgreSQL; the hollow ones do not. A red diamond marks a failure case, and each links to
+    the test that causes it. Simplified from the project README.
+  </figcaption>
+</figure>
+
+<style>
+  text {
+    font-family: var(--font-sans);
+    fill: var(--ink);
+  }
+  .title {
+    font-size: 20px;
+    font-weight: 800;
+  }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    fill: var(--ink-muted);
+  }
+  .body {
+    font-size: 16px;
+    fill: var(--ink-muted);
+  }
+  .case {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .proof {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  a:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+</style>
