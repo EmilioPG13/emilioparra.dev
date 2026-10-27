@@ -1,0 +1,97 @@
+---
+title: Webhook Delivery Platform
+summary: A service that delivers webhooks to receivers that are down, slow or hostile, and says exactly what it guarantees when something fails.
+order: 2
+line: blue
+links:
+  - label: Code
+    href: https://github.com/EmilioPG13/webhook-delivery-platform
+  - label: Measured results
+    href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md
+  - label: Decisions
+    href: https://github.com/EmilioPG13/webhook-delivery-platform/tree/main/adr
+facts:
+  - label: Retry schedule
+    value: '10 attempts over about 47 hours'
+    context: 20% jitter, and Retry-After is honored on 429 and 503.
+    source:
+      label: ADR 6
+      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0006-retry-schedule.md
+  - label: Sustained publishing
+    value: '400 events/s, publish p95 9.5 to 11.0 ms'
+    context: 'k6 on one machine (Ryzen 7 5700X, 31.9 GB) that also ran the app, the database and the receiver. 3 runs, 2026-10-08. At 800 events/s the PostgreSQL rate limiter fails.'
+    source:
+      label: Measured results
+      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md
+  - label: Deliveries per second against a slow receiver
+    value: '12.8 to 13.1 before the fix, 47.1 to 47.9 after'
+    context: Receiver median 800 ms, same machine, 3 runs each.
+    source:
+      label: ADR 4
+      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0004-consumer-concurrency.md
+  - label: Rolling update of the worker under load
+    value: '0 events lost, 0 duplicated, in 3 runs'
+    context: 'Local Kubernetes (kind), not AWS. 15 events/s for 120 s. With the shutdown grace cut to 1 s: 0 lost, 45 duplicated.'
+    source:
+      label: Read the script
+      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/deploy/local/rollout-test.ps1
+  - label: Smoke run on EKS
+    value: '3,001 of 3,001 delivered, 0 failed, publish p95 40 ms'
+    context: One run, on AWS for one day (2026-10-11), destroyed afterwards. It shows the stack works there. It is not a measurement.
+    source:
+      label: Measured results
+      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md
+---
+import EventLifecycle from '../../components/EventLifecycle.astro';
+import ExternalLink from '../../components/ExternalLink.astro';
+
+## The problem
+
+A customer's server will be down sometimes, slow sometimes and, once in a while, hostile. A webhook platform sits in the middle and has to deliver the event anyway.
+
+Sending the HTTP request is the easy part. The hard part is knowing what is true when something fails halfway: the worker dies after sending and before writing the result, the queue is down, the database fails. And the platform cannot tell two situations apart: The request never arrived, or it arrived and the answer was lost.
+
+## The decision
+
+Deliveries are **at least once**, never exactly once. When in doubt the platform delivers again, so a receiver may see an event twice and must never miss one that could have been delivered. Every attempt carries the same `webhook-id`, and the receiver deduplicates by it.
+
+After that, the order of the steps is the design (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0001-at-least-once-delivery.md">ADR 1</ExternalLink>):
+
+1. Claim the delivery with a lease, in its own statement.
+2. Make the HTTP call, holding no database transaction.
+3. Record the attempt and the next state, in one short transaction.
+4. Delete the queue message, only after step 3 committed.
+
+A crash before step 4 leaves the message in the queue. A crash before step 3 leaves the delivery enqueued with a lease that expires. Either way the work comes back and is done again. The worst case is a second HTTP call, and nothing is silently dropped.
+
+<EventLifecycle />
+
+I rejected three alternatives (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0001-at-least-once-delivery.md">ADR 1</ExternalLink>):
+
+- **Exactly once.** It cannot be offered honestly over a network. Systems that claim it mean at least once plus deduplication, which is what this builds in the open.
+- **At most once.** It turns every network blip into a lost event.
+- **Recording the attempt before the HTTP call.** It narrows the window without closing it, and it holds a connection across a call that can take 15 seconds.
+
+The second decision is the queue. PostgreSQL stays the source of truth, and SQS carries only delivery ids. At this scale PostgreSQL alone would be enough. I chose SQS for the managed dead-letter queue, for something to scale workers on, and because I wanted to learn it. If this were a product with no learning goal, the PostgreSQL-only queue would win (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0005-queue-sqs-with-postgres-as-source-of-truth.md">ADR 5</ExternalLink>).
+
+## The evidence
+
+Every row of the <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform#what-happens-when-things-fail">failure table in the README</ExternalLink> has a test that causes the failure:
+
+- A worker is killed after the request left and before the attempt is recorded. The receiver gets the request twice with the same `webhook-id`, and the delivery still ends delivered. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/src/test/java/io/github/emiliopg13/webhooks/delivery/WorkerCrashTest.java">WorkerCrashTest</ExternalLink>
+- SQS is down, or the database fails at the claim. Deliveries wait and then flow, and the message is kept. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/src/test/java/io/github/emiliopg13/webhooks/delivery/InfrastructureOutageTest.java">InfrastructureOutageTest</ExternalLink>
+- Twenty identical publishes at once create one event. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/src/test/java/io/github/emiliopg13/webhooks/event/ConcurrentPublishTest.java">ConcurrentPublishTest</ExternalLink>
+- A rolling update of the worker under load lost 0 events in 3 runs, on local Kubernetes (kind). With the shutdown grace cut to 1 second it still lost 0 but produced 45 duplicates, so the test can fail. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/deploy/local/rollout-test.ps1">Read the script</ExternalLink>
+
+Measuring also found a bottleneck that reading the code did not show. Against a slow receiver the worker delivered about 13 per second, although it was configured for 50 in flight, and nothing was saturated: CPU was at 3% to 7% and the database pool was idle. The cause was that each loop waited for the slowest of its 10 messages before reading again. Reading only into free slots took the same workload from about 13 to about 47 deliveries per second, with the same machine and three runs each (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0004-consumer-concurrency.md">ADR 4</ExternalLink>).
+
+Every figure here comes from one machine that also ran the app, the database and the receiver, so the absolute numbers are lower bounds. The run on EKS happened once, for one day, and shows that the stack works there.
+
+## What I would change
+
+- **It is not exactly once.** Receivers must deduplicate, and <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform#verifying-a-webhook-as-a-receiver">the README says how</ExternalLink>.
+- **There is no ordering.** If event 1 fails and is retried in 30 seconds while event 2 succeeds, the receiver sees 2 before 1.
+- **There is no latency bound.** Between publishing and the first attempt there is up to one second of dispatcher tick plus the trip through SQS.
+- **After the last attempt, about 47 hours, only a manual replay sends it again.**
+- **One master key encrypts every endpoint secret.** Whoever has the database and that key reads them all.
+- **At 800 events per second the PostgreSQL rate limiter is the first thing to give.** An in-memory limiter held 800, but it is only correct for one process.

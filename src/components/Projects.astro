@@ -61,6 +61,13 @@ import Arrow from './Arrow.astro';
           </ol>
 
           <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-1">
+            <li>
+              <a href={`/projects/${project.id}`} class="inline-flex min-h-11 items-center gap-1 text-lg font-bold text-ink">
+                Read the case study
+                <span class="sr-only"> for {project.name}</span>
+                <Arrow />
+              </a>
+            </li>
             {project.links.map((link) => (
               <li>
                 <a
