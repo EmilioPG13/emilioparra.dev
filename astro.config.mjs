@@ -13,5 +13,10 @@ export default defineConfig({
     plugins: [tailwindcss()]
   },
 
+  // Code blocks take their colours from the site tokens (global.css), so they follow the theme toggle.
+  markdown: {
+    shikiConfig: { theme: 'css-variables' }
+  },
+
   integrations: [mdx(), sitemap()]
 });

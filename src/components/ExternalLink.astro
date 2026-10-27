@@ -1,0 +1,12 @@
+---
+// Off-site link for MDX bodies, where markdown links cannot carry target/rel.
+import { newTab } from '../data/site';
+
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+---
+
+<a href={href} {...newTab}><slot /><span class="sr-only"> (opens in a new tab)</span></a>

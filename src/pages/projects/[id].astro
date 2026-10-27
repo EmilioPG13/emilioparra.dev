@@ -24,19 +24,42 @@ const jsonLd = {
 ---
 
 <Layout title={`${title} | Emilio Parra`} description={summary} jsonLd={jsonLd}>
-  <!-- Signage band in the project's line colour, as on the home map. -->
-  <div class="on-sign border-b border-rule bg-sign text-sign-ink">
-    <div class="mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6 sm:pb-8 sm:pt-6">
-      <p class="flex items-center gap-3 font-mono text-base font-semibold">
-        <span aria-hidden="true" class="h-2 w-12" style={`background: var(--line-${line})`}></span>
-        Case study
-      </p>
-      <h1 class="mt-3text-[clamp(2.5rem,9vw,5rem)] font-extrabold leading-[0.95] tracking-tight">{title}</h1>
+  <!-- Signage band closed by a rule in the project's line colour, as the home project headers are. -->
+  <div
+    class="on-sign border-b-[6px] bg-sign text-sign-ink"
+    style={`border-bottom-color: var(--line-${line})`}
+  >
+    <div class="mx-auto max-w-6xl px-4 pb-6 pt-6 sm:px-6 sm:pb-8">
+      <h1 class="text-[clamp(2.5rem,9vw,5rem)] font-extrabold leading-[0.95] tracking-tight">{title}</h1>
       <p class="mt-3 max-w-[40ch] text-[clamp(1.2rem,3.5vw,1.75rem)] font-semibold">{summary}</p>
+      <!-- The evidence first: on a phone the aside is a full page of prose away. -->
+      <ul class="mt-4 flex flex-wrap gap-x-6">
+        {
+          links.map((item) => (
+            <li>
+              <a href={item.href} {...newTab} class="inline-flex min-h-11 items-center gap-2 font-bold">
+                {item.label}
+                <span class="sr-only"> (opens in a new tab)</span>
+                <Arrow />
+              </a>
+            </li>
+          ))
+        }
+        {
+          facts.length > 0 && (
+            <li>
+              <a href="#facts" class="inline-flex min-h-11 items-center gap-2 font-bold">
+                Numbers and sources
+                <Arrow />
+              </a>
+            </li>
+          )
+        }
+      </ul>
     </div>
   </div>
 
-  <article class="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14 lg:py-16">
+  <article class="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14 lg:py-16">
     <div class="case-body max-w-[62ch]">
       <Content />
     </div>
@@ -44,7 +67,7 @@ const jsonLd = {
     <aside class="space-y-10">
       {
         facts.length > 0 && (
-          <section aria-labelledby="facts-title">
+          <section id="facts" aria-labelledby="facts-title">
             <h2 id="facts-title" class="text-2xl font-extrabold">Numbers and where they come from</h2>
             <dl class="mt-4 border-t-[3px] border-ink">
               {facts.map((fact) => (
@@ -62,22 +85,6 @@ const jsonLd = {
               ))}
             </dl>
           </section>
-        )
-      }
-
-      {
-        links.length > 0 && (
-          <ul class="space-y-1">
-            {links.map((item) => (
-              <li>
-                <a href={item.href} {...newTab} class="inline-flex min-h-11 items-center gap-2 font-bold">
-                  {item.label}
-                  <span class="sr-only"> (opens in a new tab)</span>
-                  <Arrow />
-                </a>
-              </li>
-            ))}
-          </ul>
         )
       }
 

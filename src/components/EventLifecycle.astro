@@ -91,6 +91,11 @@ const height = cursor - 12;
 ---
 
 <figure class="m-0">
+  <!-- The key comes first, so the reader knows the encoding before the drawing. -->
+  <figcaption class="mb-3 max-w-[40ch] text-base text-ink-muted">
+    Filled stations commit to PostgreSQL; hollow ones do not. A red diamond marks a failure case. Each station links to
+    the test or decision record behind it. Simplified from the project README.
+  </figcaption>
   <svg
     viewBox={`0 0 ${width} ${height}`}
     class="block h-auto w-full max-w-[26rem]"
@@ -148,7 +153,7 @@ const height = cursor - 12;
             </g>
           )}
           <a href={s.proof.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.proof.label} (opens in a new tab)`}>
-            <rect x={textX - 4} y={s.proofY - 18} width={width - textX} height="30" fill="transparent" />
+            <rect x={textX - 4} y={s.proofY - 22} width={width - textX} height="44" fill="transparent" />
             <text x={textX} y={s.proofY} class="proof">
               {s.proof.label}
             </text>
@@ -157,11 +162,6 @@ const height = cursor - 12;
       ))
     }
   </svg>
-
-  <figcaption class="mt-3 max-w-[40ch] text-base text-ink-muted">
-    Filled stations commit to PostgreSQL; the hollow ones do not. A red diamond marks a failure case, and each links to
-    the test that causes it. Simplified from the project README.
-  </figcaption>
 </figure>
 
 <style>
@@ -174,7 +174,6 @@ const height = cursor - 12;
     font-weight: 800;
   }
   .tag {
-    font-family: var(--font-mono);
     font-size: 14px;
     fill: var(--ink-muted);
   }
@@ -192,8 +191,12 @@ const height = cursor - 12;
     font-weight: 600;
     text-decoration: underline;
   }
+  /* An outline on an SVG link is not drawn the same everywhere, so the ring is the hit area itself. */
   a:focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 2px;
+    outline: none;
+  }
+  a:focus-visible rect {
+    stroke: var(--focus);
+    stroke-width: 3;
   }
 </style>
