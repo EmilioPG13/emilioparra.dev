@@ -49,7 +49,7 @@ import ExternalLink from '../../components/ExternalLink.astro';
 
 A customer's server will be down sometimes, slow sometimes and, once in a while, hostile. A webhook platform sits in the middle and has to deliver the event anyway.
 
-Sending the HTTP request is the easy part. The hard part is knowing what is true when something fails halfway: the worker dies after sending and before writing the result, the queue is down, the database fails. And the platform cannot tell two situations apart: the request never arrived, or it arrived and the answer was lost.
+Sending the HTTP request is the easy part. The hard part is knowing what is true when something fails halfway: the worker dies after sending and before writing the result, the queue is down, the database fails. And the platform cannot tell two situations apart: The request never arrived, or it arrived and the answer was lost.
 
 ## The decision
 
