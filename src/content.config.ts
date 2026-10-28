@@ -24,6 +24,8 @@ const projects = defineCollection({
           value: z.string(),
           /** Where and how it was measured, when the number needs it. */
           context: z.string().optional(),
+          /** Shown in the signage band too, so the proof is on the first screen. */
+          headline: z.boolean().default(false),
           source: link,
         }),
       )

@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 const cases = [
-  { id: 'court-booking', title: 'Court Booking', facts: 4 },
-  { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform', facts: 5 },
+  { id: 'court-booking', title: 'Court Booking', facts: 4, headline: 2, next: { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform' } },
+  { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform', facts: 5, headline: 2, next: { id: 'court-booking', title: 'Court Booking' } },
 ];
 
-for (const { id, title, facts } of cases) {
+for (const { id, title, facts, headline, next } of cases) {
   test.describe(title, () => {
     test('responds, has one h1 and is indexable', async ({ page }) => {
       const response = await page.goto(`/projects/${id}`);
@@ -27,7 +27,27 @@ for (const { id, title, facts } of cases) {
         'The evidence',
         'What I would change',
         'Numbers and where they come from',
+        next.title,
       ]);
+    });
+
+    test('the header band shows the headline figures, each linked to its source', async ({ page }) => {
+      await page.goto(`/projects/${id}`);
+      const band = page.locator('h1').locator('xpath=ancestor::div[contains(@class,"on-sign")]');
+      const figures = band.locator('ul').first().getByRole('link');
+      await expect(figures).toHaveCount(headline);
+      for (const figure of await figures.all()) {
+        await expect(figure).toHaveAttribute('href', /^https:\/\/github\.com\/EmilioPG13\//);
+        await expect(figure).toHaveAttribute('target', '_blank');
+      }
+    });
+
+    test('ends with the other case study, the CV and the email', async ({ page }) => {
+      await page.goto(`/projects/${id}`);
+      const end = page.getByRole('region', { name: next.title });
+      await expect(end.getByRole('link', { name: next.title })).toHaveAttribute('href', `/projects/${next.id}`);
+      await expect(end.getByRole('link', { name: /Download CV/ })).toHaveAttribute('href', '/emilio-parra-cv.pdf');
+      await expect(end.getByRole('link', { name: /@emilioparra\.dev/ })).toHaveAttribute('href', /^mailto:/);
     });
 
     test('every figure carries a source link that opens in a new tab', async ({ page }) => {

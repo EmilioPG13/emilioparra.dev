@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../layouts/Layout.astro';
 import Arrow from '../../components/Arrow.astro';
-import { newTab } from '../../data/site';
+import { newTab, person } from '../../data/site';
 
 export const getStaticPaths = (async () => {
   const projects = await getCollection('projects');
@@ -13,6 +13,10 @@ export const getStaticPaths = (async () => {
 const { project } = Astro.props;
 const { Content } = await render(project);
 const { title, summary, line, links, facts } = project.data;
+const headlineFacts = facts.filter((fact) => fact.headline);
+
+// The case study to read next: the other one, so the page never ends in a dead end.
+const next = (await getCollection('projects')).find((other) => other.id !== project.id);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -32,7 +36,22 @@ const jsonLd = {
     <div class="mx-auto max-w-6xl px-4 pb-6 pt-6 sm:px-6 sm:pb-8">
       <h1 class="text-[clamp(2.5rem,9vw,5rem)] font-extrabold leading-[0.95] tracking-tight">{title}</h1>
       <p class="mt-3 max-w-[40ch] text-[clamp(1.2rem,3.5vw,1.75rem)] font-semibold">{summary}</p>
-      <!-- The evidence first: on a phone the aside is a full page of prose away. -->
+      <!-- The proof on the first screen: on a phone the aside is a full page of prose away. -->
+      {
+        headlineFacts.length > 0 && (
+          <ul class="mt-6 grid max-w-3xl gap-x-8 gap-y-2 sm:grid-cols-2">
+            {headlineFacts.map((fact) => (
+              <li class="border-t-2 pt-2" style={`border-top-color: var(--line-${line})`}>
+                <a href={fact.source.href} {...newTab} class="block min-h-11 no-underline">
+                  <span class="block text-base text-sign-muted">{fact.label}</span>
+                  <span class="block text-lg font-bold underline">{fact.value}</span>
+                  <span class="sr-only"> (source: {fact.source.label}, opens in a new tab)</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
       <ul class="mt-4 flex flex-wrap gap-x-6">
         {
           links.map((item) => (
@@ -91,4 +110,39 @@ const jsonLd = {
       <a href="/#projects" class="inline-flex min-h-11 items-center font-semibold underline">All projects</a>
     </aside>
   </article>
+
+  <!-- The end of the line: the other case study, then the recruiter's actions. -->
+  <section
+    aria-labelledby="after-title"
+    class="on-sign border-t-[6px] bg-sign text-sign-ink"
+    style={next && `border-top-color: var(--line-${next.data.line})`}
+  >
+    <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+      {
+        next && (
+          <a href={`/projects/${next.id}`} class="block max-w-[40ch] no-underline">
+            <h2 id="after-title" class="text-3xl font-extrabold underline sm:text-4xl">{next.data.title}</h2>
+            <p class="mt-2 text-lg text-sign-muted">{next.data.summary}</p>
+          </a>
+        )
+      }
+
+      <div class="mt-8 flex flex-col items-start gap-6">
+        <a
+          href={person.cv}
+          download
+          data-umami-event="download-cv"
+          data-umami-event-location="project"
+          class="inline-flex min-h-14 items-center gap-4 border-2 border-sign-ink bg-sign-ink px-5 text-lg font-bold text-sign no-underline hover:bg-sign hover:text-sign-ink"
+        >
+          <span>Download CV</span>
+          <span class="num text-sm font-semibold opacity-80">PDF</span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true">
+            <path d="M12 4v12M6 11l6 6 6-6M5 21h14"></path>
+          </svg>
+        </a>
+        <a href={`mailto:${person.email}`} class="text-2xl font-bold sm:text-3xl">{person.email}</a>
+      </div>
+    </div>
+  </section>
 </Layout>
