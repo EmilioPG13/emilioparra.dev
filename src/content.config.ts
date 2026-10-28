@@ -31,15 +31,4 @@ const projects = defineCollection({
   }),
 });
 
-// Stays empty until there is a finished article (Phase 4).
-const blog = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    pubDate: z.coerce.date(),
-    draft: z.boolean().default(false),
-  }),
-});
-
-export const collections = { projects, blog };
+export const collections = { projects };
