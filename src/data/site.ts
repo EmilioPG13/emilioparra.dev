@@ -1,4 +1,4 @@
-// Copy that appears more than once, and facts copied from the CV v6 (source of
+// Copy that appears more than once, and facts copied from the CV (source of
 // truth for experience, dates and titles). Numbers come from the project
 // READMEs; each one is shown next to the environment it was measured in.
 
