@@ -25,16 +25,18 @@ facts:
       href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md
   - label: Deliveries per second against a slow receiver
     value: '12.8 to 13.1 before the fix, 47.1 to 47.9 after'
+    headline: true
     context: Receiver median 800 ms, same machine, 3 runs each.
     source:
       label: ADR 4
       href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0004-consumer-concurrency.md
-  - label: Rolling update of the worker under load
+  - label: Rolling update of the worker under load, on local Kubernetes
     value: '0 events lost, 0 duplicated, in 3 runs'
-    context: 'Local Kubernetes (kind), not AWS. 15 events/s for 120 s. With the shutdown grace cut to 1 s: 0 lost, 45 duplicated.'
+    headline: true
+    context: 'Kind, not AWS. 15 events/s for 120 s. With the shutdown grace cut to 1 s: 0 lost, 45 duplicated.'
     source:
-      label: Read the script
-      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/deploy/local/rollout-test.ps1
+      label: Measured results, section f
+      href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md#f-rolling-update-on-kubernetes-kind-2026-10-10
   - label: Smoke run on EKS
     value: '3,001 of 3,001 delivered, 0 failed, publish p95 40 ms'
     context: One run, on AWS for one day (2026-10-11), destroyed afterwards. It shows the stack works there. It is not a measurement.
@@ -76,12 +78,12 @@ The second decision is the queue. PostgreSQL stays the source of truth, and SQS 
 
 ## The evidence
 
-Every row of the <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform#what-happens-when-things-fail">failure table in the README</ExternalLink> has a test that causes the failure:
+Every row of the <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform#what-happens-when-things-fail">failure table in the README</ExternalLink> names the test or script that causes the failure. Four of them:
 
 - A worker is killed after the request left and before the attempt is recorded. The receiver gets the request twice with the same `webhook-id`, and the delivery still ends delivered. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/src/test/java/io/github/emiliopg13/webhooks/delivery/WorkerCrashTest.java">WorkerCrashTest</ExternalLink>
 - SQS is down, or the database fails at the claim. Deliveries wait and then flow, and the message is kept. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/src/test/java/io/github/emiliopg13/webhooks/delivery/InfrastructureOutageTest.java">InfrastructureOutageTest</ExternalLink>
 - Twenty identical publishes at once create one event. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/src/test/java/io/github/emiliopg13/webhooks/event/ConcurrentPublishTest.java">ConcurrentPublishTest</ExternalLink>
-- A rolling update of the worker under load lost 0 events in 3 runs, on local Kubernetes (kind). With the shutdown grace cut to 1 second it still lost 0 but produced 45 duplicates, so the test can fail. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/deploy/local/rollout-test.ps1">Read the script</ExternalLink>
+- A rolling update of the worker under load lost 0 events in 3 runs, on local Kubernetes (kind). With the shutdown grace cut to 1 second it still lost 0 but produced 45 duplicates, so the test can fail. <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md#f-rolling-update-on-kubernetes-kind-2026-10-10">Read the results</ExternalLink> or <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/deploy/local/rollout-test.ps1">the script</ExternalLink>
 
 Measuring also found a bottleneck that reading the code did not show. Against a slow receiver the worker delivered about 13 per second, although it was configured for 50 in flight, and nothing was saturated: CPU was at 3% to 7% and the database pool was idle. The cause was that each loop waited for the slowest of its 10 messages before reading again. Reading only into free slots took the same workload from about 13 to about 47 deliveries per second, with the same machine and three runs each (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0004-consumer-concurrency.md">ADR 4</ExternalLink>).
 

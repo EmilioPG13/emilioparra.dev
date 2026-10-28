@@ -11,12 +11,14 @@ links:
 facts:
   - label: Simultaneous requests for one slot
     value: '20 requests, 1 created, 19 rejected'
+    headline: true
     context: Twenty different users, one slot, a real PostgreSQL.
     source:
       label: Read the test
       href: https://github.com/EmilioPG13/reservation-system/blob/main/backend/tests/test_reservations_concurrency.py
   - label: Backend tests
     value: '224 passing, 94% line coverage'
+    headline: true
     context: Run with uv run pytest --cov=app on a clean clone, 2026-10-26.
     source:
       label: Tests section of the README

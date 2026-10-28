@@ -93,8 +93,9 @@ const height = cursor - 12;
 <figure class="m-0">
   <!-- The key comes first, so the reader knows the encoding before the drawing. -->
   <figcaption class="mb-3 max-w-[40ch] text-base text-ink-muted">
-    Filled stations commit to PostgreSQL; hollow ones do not. A red diamond marks a failure case. Each station links to
-    the test or decision record behind it. Simplified from the project README.
+    Filled stations commit to PostgreSQL; hollow ones do not. A red diamond marks a failure case. The link under a station
+    is the test that causes its failure case, or the decision record where it has none. Simplified from the project
+    README.
   </figcaption>
   <svg
     viewBox={`0 0 ${width} ${height}`}

@@ -24,6 +24,8 @@ const projects = defineCollection({
           value: z.string(),
           /** Where and how it was measured, when the number needs it. */
           context: z.string().optional(),
+          /** Shown in the signage band too, so the proof is on the first screen. */
+          headline: z.boolean().default(false),
           source: link,
         }),
       )
@@ -31,15 +33,4 @@ const projects = defineCollection({
   }),
 });
 
-// Stays empty until there is a finished article (Phase 4).
-const blog = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    pubDate: z.coerce.date(),
-    draft: z.boolean().default(false),
-  }),
-});
-
-export const collections = { projects, blog };
+export const collections = { projects };
