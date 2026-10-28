@@ -3,6 +3,7 @@ title: Webhook Delivery Platform
 summary: A service that delivers webhooks to receivers that are down, slow or hostile, and says exactly what it guarantees when something fails.
 order: 2
 line: blue
+meta: Solo project / Java 25, Spring Boot, PostgreSQL, SQS, Kubernetes / 2026
 links:
   - label: Code
     href: https://github.com/EmilioPG13/webhook-delivery-platform
@@ -19,7 +20,7 @@ facts:
       href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0006-retry-schedule.md
   - label: Sustained publishing
     value: '400 events/s, publish p95 9.5 to 11.0 ms'
-    context: 'k6 on one machine (Ryzen 7 5700X, 31.9 GB) that also ran the app, the database and the receiver. 3 runs, 2026-10-08. At 800 events/s the PostgreSQL rate limiter fails.'
+    context: 'k6, a load-testing tool, on one machine (Ryzen 7 5700X, 31.9 GB) that also ran the app, the database and the receiver. 3 runs, 2026-10-08. p95 means 95% of publishes were faster than that. At 800 events/s the PostgreSQL rate limiter fails.'
     source:
       label: Measured results
       href: https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/load/RESULTS.md
@@ -49,7 +50,7 @@ import ExternalLink from '../../components/ExternalLink.astro';
 
 ## The problem
 
-A customer's server will be down sometimes, slow sometimes and, once in a while, hostile. A webhook platform sits in the middle and has to deliver the event anyway.
+A webhook is an HTTP call that one service makes to a customer's server to say that something happened, for example that a payment went through. That server will be down sometimes, slow sometimes and, once in a while, hostile. A webhook platform, the system that makes those calls, sits in the middle and has to deliver the event anyway.
 
 Sending the HTTP request is the easy part. The hard part is knowing what is true when something fails halfway: the worker dies after sending and before writing the result, the queue is down, the database fails. And the platform cannot tell two situations apart: The request never arrived, or it arrived and the answer was lost.
 
@@ -57,9 +58,9 @@ Sending the HTTP request is the easy part. The hard part is knowing what is true
 
 Deliveries are **at least once**, never exactly once. When in doubt the platform delivers again, so a receiver may see an event twice and must never miss one that could have been delivered. Every attempt carries the same `webhook-id`, and the receiver deduplicates by it.
 
-After that, the order of the steps is the design (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0001-at-least-once-delivery.md">ADR 1</ExternalLink>):
+After that, the order of the steps is the design (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0001-at-least-once-delivery.md">ADR 1</ExternalLink>, an architecture decision record: a short note that explains one choice and what was rejected):
 
-1. Claim the delivery with a lease, in its own statement.
+1. Claim the delivery with a lease, a claim that expires, so a worker that dies does not hold it forever. It is its own database statement.
 2. Make the HTTP call, holding no database transaction.
 3. Record the attempt and the next state, in one short transaction.
 4. Delete the queue message, only after step 3 committed.
@@ -67,6 +68,8 @@ After that, the order of the steps is the design (<ExternalLink href="https://gi
 A crash before step 4 leaves the message in the queue. A crash before step 3 leaves the delivery enqueued with a lease that expires. Either way the work comes back and is done again. The worst case is a second HTTP call, and nothing is silently dropped.
 
 <EventLifecycle />
+
+Four terms in the drawing. The Idempotency-Key is a header the publisher sends so that a repeated request counts once. The reaper is a background job that gives back deliveries stuck as enqueued. HMAC is a signature that lets the receiver check who sent the request. The guard that refuses private addresses is protection against SSRF, where a customer points the platform at the internal network.
 
 I rejected three alternatives (<ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform/blob/main/adr/0001-at-least-once-delivery.md">ADR 1</ExternalLink>):
 
@@ -89,7 +92,7 @@ Measuring also found a bottleneck that reading the code did not show. Against a 
 
 Every figure here comes from one machine that also ran the app, the database and the receiver, so the absolute numbers are lower bounds. The run on EKS happened once, for one day, and shows that the stack works there.
 
-## What I would change
+## Limits, and what I would change
 
 - **It is not exactly once.** Receivers must deduplicate, and <ExternalLink href="https://github.com/EmilioPG13/webhook-delivery-platform#verifying-a-webhook-as-a-receiver">the README says how</ExternalLink>.
 - **There is no ordering.** If event 1 fails and is retried in 30 seconds while event 2 succeeds, the receiver sees 2 before 1.

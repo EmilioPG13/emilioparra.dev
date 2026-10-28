@@ -3,6 +3,10 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 const link = z.object({ label: z.string(), href: z.url() });
+const projectLink = link.extend({
+  /** Shown next to the label, for what a reader should know before clicking. */
+  note: z.string().optional(),
+});
 
 // Case studies. Files starting with `_` (the template) are not published.
 // Every figure carries the place it comes from and the conditions it was
@@ -16,7 +20,9 @@ const projects = defineCollection({
     summary: z.string().max(200),
     order: z.number(),
     line: z.enum(['red', 'blue', 'amber', 'brown']),
-    links: z.array(link).default([]),
+    /** Role, stack and year in one line, taken from the repository. */
+    meta: z.string(),
+    links: z.array(projectLink).default([]),
     facts: z
       .array(
         z.object({

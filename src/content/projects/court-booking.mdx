@@ -3,8 +3,10 @@ title: Court Booking
 summary: A padel court booking app where PostgreSQL itself refuses overlapping reservations, so a double booking cannot happen.
 order: 1
 line: red
+meta: Solo project / Python, FastAPI, PostgreSQL, React, TypeScript / 2026
 links:
   - label: Live demo
+    note: Spanish interface, can take a few seconds to start
     href: https://reservation-system-azure.vercel.app
   - label: Code
     href: https://github.com/EmilioPG13/reservation-system
@@ -61,7 +63,7 @@ ALTER TABLE reservations
 
 - The range is half-open, `[start, end)`, so 10:00 to 11:00 and 11:00 to 12:00 do not overlap.
 - The constraint is partial, so a cancelled reservation does not block its slot.
-- The service catches the violation (SQLSTATE `23P01`) and the API answers `409 That slot was just taken`. A 409 means only that. Every other refusal has its own status.
+- The service catches the violation (SQLSTATE `23P01`, the PostgreSQL error code for an exclusion violation) and the API answers `409 That slot was just taken`. A 409 is the HTTP status for a conflict, and it means only that. Every other refusal has its own status.
 
 I rejected the check-then-insert flow, the application checking first and hoping. The rule would live in application code, and any new code path would have to remember it. In the constraint, it lives next to the data and holds for every writer.
 
@@ -73,7 +75,7 @@ Two smaller decisions follow the same habit of choosing the failure I can live w
 ## The evidence
 
 - A test fires 20 simultaneous requests from 20 different users at one slot, against a real PostgreSQL. Exactly one gets a 201 and nineteen get a 409. <ExternalLink href="https://github.com/EmilioPG13/reservation-system/blob/main/backend/tests/test_reservations_concurrency.py">Read the test</ExternalLink>.
-- An end-to-end Playwright test races two browsers for the same cell. One wins, the other is told so and sees the grid refresh. <ExternalLink href="https://github.com/EmilioPG13/reservation-system/blob/main/frontend/e2e/race.spec.ts">Read the test</ExternalLink>.
+- An end-to-end test, written with Playwright, which drives real browsers, races two of them for the same cell. One wins, the other is told so and sees the grid refresh. <ExternalLink href="https://github.com/EmilioPG13/reservation-system/blob/main/frontend/e2e/race.spec.ts">Read the test</ExternalLink>.
 - A clean clone of the repository gives 224 passing backend tests at 94% line coverage and 26 passing Vitest tests (run on 2026-10-26). <ExternalLink href="https://github.com/EmilioPG13/reservation-system#tests">How to run them</ExternalLink>.
 - The court grid costs one call per day, `GET /availability?date=`, which returns every court with all its slots in four queries, however many courts there are. <ExternalLink href="https://github.com/EmilioPG13/reservation-system/blob/main/backend/app/services/availability.py">Read the service</ExternalLink>.
 
@@ -81,7 +83,7 @@ The <ExternalLink href="https://reservation-system-azure.vercel.app">live demo</
 
 ## What I would change
 
-- The rate limiter is in memory, so it is just right for one API process only. Several replicas would need a shared store.
-- Polling is fine at this size. Server-sent events would make the grid feel live.
 - There is no password reset and no email verification.
 - A new backend error message shows a generic line in the interface until I add its translation.
+- Polling is fine at this size. Server-sent events would make the grid feel live.
+- The rate limiter is in memory, so it is only correct for one API process. Running several copies of the API would need a shared store, and that is the first thing I would change.

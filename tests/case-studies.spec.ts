@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 const cases = [
-  { id: 'court-booking', title: 'Court Booking', facts: 4, headline: 2, next: { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform' } },
-  { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform', facts: 5, headline: 2, next: { id: 'court-booking', title: 'Court Booking' } },
+  { id: 'court-booking', title: 'Court Booking', change: 'What I would change', stack: 'FastAPI', facts: 4, headline: 2, next: { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform' } },
+  { id: 'webhook-delivery-platform', title: 'Webhook Delivery Platform', change: 'Limits, and what I would change', stack: 'Spring Boot', facts: 5, headline: 2, next: { id: 'court-booking', title: 'Court Booking' } },
 ];
 
-for (const { id, title, facts, headline, next } of cases) {
+for (const { id, title, change, stack, facts, headline, next } of cases) {
   test.describe(title, () => {
     test('responds, has one h1 and is indexable', async ({ page }) => {
       const response = await page.goto(`/projects/${id}`);
@@ -25,10 +25,18 @@ for (const { id, title, facts, headline, next } of cases) {
         'The problem',
         'The decision',
         'The evidence',
-        'What I would change',
+        change,
         'Numbers and where they come from',
         next.title,
       ]);
+    });
+
+    test('the header band says it is a solo project and names the stack and the year', async ({ page }) => {
+      await page.goto(`/projects/${id}`);
+      const band = page.locator('h1').locator('xpath=ancestor::div[contains(@class,"on-sign")]');
+      await expect(band).toContainText('Solo project');
+      await expect(band).toContainText(stack);
+      await expect(band).toContainText('2026');
     });
 
     test('the header band shows the headline figures, each linked to its source', async ({ page }) => {
@@ -116,6 +124,13 @@ test('the project links and the numbers are reachable from the header band', asy
   );
   await expect(band.getByRole('link', { name: /Code/ })).toHaveAttribute('target', '_blank');
   await expect(band.getByRole('link', { name: 'Numbers and sources' })).toHaveAttribute('href', '#facts');
+});
+
+test('the live demo link warns about the language and the wake-up time', async ({ page }) => {
+  await page.goto('/projects/court-booking');
+  const demo = page.getByRole('listitem').filter({ has: page.getByRole('link', { name: /Live demo/ }) }).first();
+  await expect(demo).toContainText('Spanish interface');
+  await expect(demo).toContainText('few seconds');
 });
 
 test('code blocks follow the site theme instead of a fixed palette', async ({ page }) => {
