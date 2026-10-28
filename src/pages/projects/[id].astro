@@ -12,7 +12,7 @@ export const getStaticPaths = (async () => {
 
 const { project } = Astro.props;
 const { Content } = await render(project);
-const { title, summary, line, links, facts } = project.data;
+const { title, summary, line, meta, links, facts } = project.data;
 const headlineFacts = facts.filter((fact) => fact.headline);
 
 // The case study to read next: the other one, so the page never ends in a dead end.
@@ -36,6 +36,7 @@ const jsonLd = {
     <div class="mx-auto max-w-6xl px-4 pb-6 pt-6 sm:px-6 sm:pb-8">
       <h1 class="text-[clamp(2.5rem,9vw,5rem)] font-extrabold leading-[0.95] tracking-tight">{title}</h1>
       <p class="mt-3 max-w-[40ch] text-[clamp(1.2rem,3.5vw,1.75rem)] font-semibold">{summary}</p>
+      <p class="mt-3 text-base text-sign-muted">{meta}</p>
       <!-- The proof on the first screen: on a phone the aside is a full page of prose away. -->
       {
         headlineFacts.length > 0 && (
@@ -61,6 +62,7 @@ const jsonLd = {
                 <span class="sr-only"> (opens in a new tab)</span>
                 <Arrow />
               </a>
+              {item.note && <p class="-mt-1 mb-2 max-w-[32ch] text-base text-sign-muted">{item.note}</p>}
             </li>
           ))
         }
@@ -83,7 +85,8 @@ const jsonLd = {
       <Content />
     </div>
 
-    <aside class="space-y-10">
+    <!-- Stays in view while the case is read; scrolls on its own when taller than the window. -->
+    <aside class="space-y-10 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto">
       {
         facts.length > 0 && (
           <section id="facts" aria-labelledby="facts-title">
@@ -92,8 +95,8 @@ const jsonLd = {
               {facts.map((fact) => (
                 <div class="border-b border-rule py-3">
                   <dt class="text-base text-ink-muted">{fact.label}</dt>
-                  <dd class="text-lg font-bold">{fact.value}</dd>
-                  {fact.context && <dd class="text-base text-ink-muted">{fact.context}</dd>}
+                  <dd class="text-pretty text-lg font-bold">{fact.value}</dd>
+                  {fact.context && <dd class="text-pretty text-base text-ink-muted">{fact.context}</dd>}
                   <dd>
                     <a href={fact.source.href} {...newTab} class="inline-flex min-h-11 items-center font-semibold underline">
                       {fact.source.label}

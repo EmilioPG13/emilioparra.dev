@@ -93,9 +93,13 @@ const height = cursor - 12;
 <figure class="m-0">
   <!-- The key comes first, so the reader knows the encoding before the drawing. -->
   <figcaption class="mb-3 max-w-[40ch] text-base text-ink-muted">
-    Filled stations commit to PostgreSQL; hollow ones do not. A red diamond marks a failure case. The link under a station
-    is the test that causes its failure case, or the decision record where it has none. Simplified from the project
-    README.
+    <ul class="legend mb-2 text-ink">
+      <li><span class="glyph filled" aria-hidden="true"></span>Filled station: commits to PostgreSQL</li>
+      <li><span class="glyph" aria-hidden="true"></span>Hollow station: does not</li>
+      <li><span class="glyph diamond" aria-hidden="true"></span>Failure case</li>
+    </ul>
+    The link under a station is the test that causes its failure case, or the decision record where it has none.
+    Simplified from the project README.
   </figcaption>
   <svg
     viewBox={`0 0 ${width} ${height}`}
@@ -166,6 +170,34 @@ const height = cursor - 12;
 </figure>
 
 <style>
+  .legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .glyph {
+    flex: none;
+    box-sizing: border-box;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    border: 3px solid var(--line-blue);
+    background: var(--platform);
+  }
+  .glyph.filled {
+    background: var(--line-blue);
+  }
+  .glyph.diamond {
+    border: 0;
+    border-radius: 0;
+    background: var(--line-red);
+    transform: rotate(45deg) scale(0.8);
+  }
   text {
     font-family: var(--font-sans);
     fill: var(--ink);

@@ -179,6 +179,8 @@ html {
 .case-body p,
 .case-body li {
   font-size: 1.125rem;
+  /* Keeps a single word from standing alone on the last line. */
+  text-wrap: pretty;
 }
 
 .case-body ul,
